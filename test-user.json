@@ -1,0 +1,8 @@
+{
+  "_id": "mock-user-123",
+  "username": "test",
+  "email": "test@example.com",
+  "role": "student",
+  "createdAt": "2025-11-10T03:47:46.392Z",
+  "updatedAt": "2025-11-10T03:47:46.392Z"
+}

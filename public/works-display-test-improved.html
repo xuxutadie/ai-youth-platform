@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作品展示测试页面</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .primary-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .secondary-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        .danger-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .works-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .work-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .work-card:hover {
+            transform: translateY(-5px);
+        }
+        .work-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        .work-info {
+            padding: 15px;
+        }
+        .work-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .work-meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .work-type {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            background-color: #e9ecef;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+        .info-message {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #bee5eb;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online {
+            background-color: #28a745;
+        }
+        .status-offline {
+            background-color: #dc3545;
+        }
+        .status-warning {
+            background-color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>作品展示测试页面</h1>
+        <p>用于验证上传内容是否准确显示</p>
+    </div>
+
+    <div class="controls">
+        <button class="primary-btn" onclick="loadWorks()">🔄 刷新作品列表</button>
+        <button class="secondary-btn" onclick="clearWorks()">🗑️ 清空显示</button>
+        <button class="danger-btn" onclick="checkSystemStatus()">🔧 检查系统状态</button>
+    </div>
+
+    <div id="status-info"></div>
+    <div id="works-container">
+        <div class="info-message">
+            <p>点击"刷新作品列表"按钮加载作品数据</p>
+        </div>
+    </div>
+
+    <script>
+        // 检查系统状态
+        async function checkSystemStatus() {
+            const statusInfo = document.getElementById('status-info');
+            statusInfo.innerHTML = '<div class="loading">正在检查系统状态...</div>';
+            
+            try {
+                // 检查API是否可访问
+                const response = await fetch('/api/works');
+                const status = response.status;
+                
+                if (status === 200) {
+                    statusInfo.innerHTML = `
+                        <div class="info-message">
+                            <h3>系统状态检查结果</h3>
+                            <p><span class="status-indicator status-online"></span> API服务: 正常运行</p>
+                            <p>响应状态: ${status} OK</p>
+                            <p>建议: 点击"刷新作品列表"按钮加载作品数据</p>
+                        </div>
+                    `;
+                } else if (status === 500) {
+                    statusInfo.innerHTML = `
+                        <div class="error-message">
+                            <h3>系统状态检查结果</h3>
+                            <p><span class="status-indicator status-offline"></span> API服务: 数据库连接失败</p>
+                            <p>错误代码: ${status}</p>
+                            <p>详细信息: 无法连接到MongoDB数据库</p>
+                            <p>解决方案:</p>
+                            <ol>
+                                <li>确保MongoDB服务正在运行</li>
+                                <li>检查数据库连接字符串配置</li>
+                                <li>确认防火墙未阻止数据库连接</li>
+                            </ol>
+                        </div>
+                    `;
+                } else {
+                    statusInfo.innerHTML = `
+                        <div class="error-message">
+                            <h3>系统状态检查结果</h3>
+                            <p><span class="status-indicator status-warning"></span> API服务: 异常</p>
+                            <p>响应状态: ${status}</p>
+                            <p>请检查服务器日志获取更多信息</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                statusInfo.innerHTML = `
+                    <div class="error-message">
+                        <h3>系统状态检查结果</h3>
+                        <p><span class="status-indicator status-offline"></span> API服务: 无法访问</p>
+                        <p>错误信息: ${error.message}</p>
+                        <p>解决方案:</p>
+                        <ol>
+                            <li>确保开发服务器正在运行 (npm run dev)</li>
+                            <li>检查网络连接</li>
+                            <li>确认API端点地址正确</li>
+                        </ol>
+                    </div>
+                `;
+            }
+        }
+
+        // 加载作品列表
+        async function loadWorks() {
+            const container = document.getElementById('works-container');
+            container.innerHTML = '<div class="loading">正在加载作品列表...</div>';
+            
+            try {
+                const response = await fetch('/api/works');
+                const works = await response.json();
+                
+                if (response.ok) {
+                    displayWorks(works);
+                } else {
+                    container.innerHTML = `
+                        <div class="error-message">
+                            <h3>加载失败</h3>
+                            <p>状态码: ${response.status}</p>
+                            <p>错误信息: ${works.error || '未知错误'}</p>
+                            <p>详细说明: 由于数据库连接问题，无法获取作品数据</p>
+                            <button class="primary-btn" onclick="loadWorks()">重试</button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="error-message">
+                        <h3>网络错误</h3>
+                        <p>无法连接到服务器: ${error.message}</p>
+                        <p>可能的原因:</p>
+                        <ul>
+                            <li>开发服务器未启动</li>
+                            <li>网络连接问题</li>
+                            <li>API端点不可用</li>
+                        </ul>
+                        <button class="primary-btn" onclick="loadWorks()">重试</button>
+                    </div>
+                `;
+            }
+        }
+
+        // 显示作品列表
+        function displayWorks(works) {
+            const container = document.getElementById('works-container');
+            
+            if (!Array.isArray(works) || works.length === 0) {
+                container.innerHTML = `
+                    <div class="info-message">
+                        <h3>暂无作品</h3>
+                        <p>当前没有上传的作品</p>
+                        <p>请先使用上传功能上传一些作品，然后刷新此页面</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let worksHTML = '<div class="works-grid">';
+            
+            works.forEach(work => {
+                // 格式化时间
+                const uploadTime = new Date(work.uploadTime).toLocaleString('zh-CN');
+                
+                // 根据作品类型设置样式
+                let typeClass = '';
+                switch(work.type) {
+                    case 'image':
+                        typeClass = '图片作品';
+                        break;
+                    case 'video':
+                        typeClass = '视频作品';
+                        break;
+                    case 'html':
+                        typeClass = '网页作品';
+                        break;
+                    default:
+                        typeClass = work.type;
+                }
+                
+                worksHTML += `
+                    <div class="work-card">
+                        <div class="work-image">
+                            ${work.type === 'image' ? 
+                                `<img src="${work.fileUrl}" alt="${work.title}" style="width:100%;height:100%;object-fit:cover;">` : 
+                                work.type === 'video' ? '📹 视频作品' : '📄 网页作品'}
+                        </div>
+                        <div class="work-info">
+                            <div class="work-title">${work.title || '未命名作品'}</div>
+                            <div class="work-meta">
+                                <div>类型: <span class="work-type">${typeClass}</span></div>
+                                <div>ID: ${work._id || work.id || 'N/A'}</div>
+                                <div>上传时间: ${uploadTime}</div>
+                            </div>
+                            <button class="secondary-btn" onclick="viewWork('${work._id || work.id}', '${work.fileUrl || ''}')">查看作品</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            worksHTML += '</div>';
+            container.innerHTML = worksHTML;
+        }
+
+        // 查看单个作品
+        function viewWork(id, fileUrl) {
+            if (fileUrl) {
+                window.open(fileUrl, '_blank');
+            } else {
+                alert(`作品ID: ${id}\n文件链接不可用`);
+            }
+        }
+
+        // 清空显示
+        function clearWorks() {
+            const container = document.getElementById('works-container');
+            container.innerHTML = `
+                <div class="info-message">
+                    <p>显示已清空</p>
+                    <p>点击"刷新作品列表"按钮重新加载作品数据</p>
+                </div>
+            `;
+        }
+
+        // 页面加载完成后自动检查状态
+        window.addEventListener('load', function() {
+            setTimeout(checkSystemStatus, 1000);
+        });
+    </script>
+</body>
+</html>

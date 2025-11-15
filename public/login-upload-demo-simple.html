@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录并上传文件演示（简化版）</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .step {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 6px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .step h2 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        .explanation {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>登录并上传文件演示（简化版）</h1>
+        
+        <div class="warning">
+            <strong>注意：</strong>当前系统检测到数据库连接问题，此演示使用模拟数据来展示功能流程。
+        </div>
+        
+        <div class="step">
+            <h2>步骤 1: 登录系统</h2>
+            <p>在本演示中，您可以使用以下任意账号登录：</p>
+            <ul>
+                <li><strong>学生账号</strong>: test@example.com / password123</li>
+                <li><strong>教师账号</strong>: teacher@example.com / password123</li>
+                <li><strong>管理员账号</strong>: admin@example.com / password123</li>
+            </ul>
+            
+            <div class="form-group">
+                <label for="email">邮箱地址:</label>
+                <input type="email" id="email" value="test@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">密码:</label>
+                <input type="password" id="password" value="password123">
+            </div>
+            
+            <button id="loginBtn">登录</button>
+            
+            <div id="loginResult" class="result"></div>
+            
+            <div class="explanation">
+                <h3>技术说明:</h3>
+                <p>在正常情况下，登录时系统会向 <code>/api/auth/login</code> 发送POST请求，包含邮箱和密码。成功登录后，服务器会返回一个JWT令牌，该令牌需要在后续的上传请求中使用。</p>
+                <p>由于当前数据库连接问题，此演示使用模拟数据来展示流程。</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <h2>步骤 2: 上传文件</h2>
+            <p>登录成功后，您可以上传作品文件。</p>
+            
+            <div class="form-group">
+                <label for="title">作品标题:</label>
+                <input type="text" id="title" placeholder="请输入作品标题">
+            </div>
+            
+            <div class="form-group">
+                <label for="type">作品类型:</label>
+                <select id="type">
+                    <option value="">请选择作品类型</option>
+                    <option value="image">图片</option>
+                    <option value="video">视频</option>
+                    <option value="html">网页</option>
+                    <option value="document">文档</option>
+                    <option value="code">代码</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="file">选择文件:</label>
+                <input type="file" id="file" accept="image/*,video/*,.html,.pdf,.doc,.docx,.zip,.rar,.js,.jsx,.ts,.tsx,.py,.java,.cpp,.c">
+            </div>
+            
+            <button id="uploadBtn" disabled>上传文件</button>
+            
+            <div id="uploadResult" class="result"></div>
+            
+            <div class="explanation">
+                <h3>技术说明:</h3>
+                <p>在正常情况下，上传文件时系统会向 <code>/api/works/upload</code> 发送POST请求，包含以下内容：</p>
+                <ul>
+                    <li>Authorization头：包含登录时获得的JWT令牌</li>
+                    <li>FormData：包含作品标题、类型和文件</li>
+                </ul>
+                <p>如果用户是学生，系统会自动关联用户信息到作品。</p>
+                <p>由于当前数据库连接问题，此演示使用模拟数据来展示流程。</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <h2>步骤 3: 查看上传结果</h2>
+            <p>上传成功后，作品会显示在作品列表中。</p>
+            <button id="viewWorksBtn" disabled>查看作品列表</button>
+        </div>
+    </div>
+
+    <script>
+        let authToken = null;
+        let currentUser = null;
+        
+        // 模拟用户数据库
+        const mockUsers = [
+            {
+                id: 'user-1',
+                email: 'test@example.com',
+                password: 'password123',
+                username: '测试学生',
+                role: 'student'
+            },
+            {
+                id: 'user-2',
+                email: 'teacher@example.com',
+                password: 'password123',
+                username: '测试教师',
+                role: 'teacher'
+            },
+            {
+                id: 'user-3',
+                email: 'admin@example.com',
+                password: 'password123',
+                username: '管理员',
+                role: 'admin'
+            }
+        ];
+        
+        // 登录功能
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('loginResult');
+            
+            // 清除之前的结果
+            resultDiv.style.display = 'none';
+            resultDiv.className = 'result';
+            
+            try {
+                // 模拟登录请求
+                // 在实际应用中，这里会向 /api/auth/login 发送请求
+                const user = mockUsers.find(u => u.email === email && u.password === password);
+                
+                if (user) {
+                    // 生成模拟令牌
+                    authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJ' + 
+                               user.id + 'Iiwicm9sZSI6Ii' + user.role + 'In0.' + 
+                               'mockSignature';
+                    
+                    currentUser = {
+                        _id: user.id,
+                        username: user.username,
+                        email: user.email,
+                        role: user.role
+                    };
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h3>登录成功!</h3>
+                        <p><strong>用户ID:</strong> ${user.id}</p>
+                        <p><strong>用户名:</strong> ${user.username}</p>
+                        <p><strong>邮箱:</strong> ${user.email}</p>
+                        <p><strong>角色:</strong> ${user.role}</p>
+                        <p><strong>模拟令牌:</strong> ${authToken.substring(0, 30)}...</p>
+                        <p class="info">注意：这是模拟的认证流程，实际系统中会连接数据库验证凭据</p>
+                    `;
+                    resultDiv.style.display = 'block';
+                    
+                    // 启用上传按钮
+                    document.getElementById('uploadBtn').disabled = false;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<h3>登录失败</h3><p>邮箱或密码错误，请检查后重试。</p>`;
+                    resultDiv.style.display = 'block';
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<h3>请求失败</h3><p>${error.message}</p>`;
+                resultDiv.style.display = 'block';
+            }
+        });
+        
+        // 上传文件功能
+        document.getElementById('uploadBtn').addEventListener('click', async () => {
+            const title = document.getElementById('title').value;
+            const type = document.getElementById('type').value;
+            const fileInput = document.getElementById('file');
+            const resultDiv = document.getElementById('uploadResult');
+            
+            // 验证输入
+            if (!title || !type) {
+                alert('请填写作品标题和类型');
+                return;
+            }
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('请选择要上传的文件');
+                return;
+            }
+            
+            // 清除之前的结果
+            resultDiv.style.display = 'none';
+            resultDiv.className = 'result';
+            
+            try {
+                // 模拟上传请求
+                // 在实际应用中，这里会向 /api/works/upload 发送请求
+                const file = fileInput.files[0];
+                
+                // 模拟上传成功响应
+                const mockResponse = {
+                    success: true,
+                    work: {
+                        id: 'work-' + Date.now(),
+                        title: title,
+                        type: type,
+                        fileName: file.name,
+                        fileSize: file.size,
+                        uploadTime: new Date().toISOString(),
+                        uploader: {
+                            id: currentUser._id,
+                            name: currentUser.username,
+                            role: currentUser.role
+                        }
+                    }
+                };
+                
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+                    <h3>上传成功!</h3>
+                    <p>作品已成功上传到系统。</p>
+                    <p><strong>作品ID:</strong> ${mockResponse.work.id}</p>
+                    <p><strong>文件名:</strong> ${file.name}</p>
+                    <p><strong>文件大小:</strong> ${formatFileSize(file.size)}</p>
+                    <p><strong>上传时间:</strong> ${new Date().toLocaleString()}</p>
+                    <p class="info">这是模拟的上传流程，实际系统中会将文件保存到服务器并记录到数据库</p>
+                `;
+                resultDiv.style.display = 'block';
+                
+                // 启用查看作品按钮
+                document.getElementById('viewWorksBtn').disabled = false;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<h3>请求失败</h3><p>${error.message}</p>`;
+                resultDiv.style.display = 'block';
+            }
+        });
+        
+        // 查看作品列表
+        document.getElementById('viewWorksBtn').addEventListener('click', () => {
+            alert('在实际应用中，这将跳转到作品列表页面。\n当前为演示版本，使用模拟数据。');
+        });
+        
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

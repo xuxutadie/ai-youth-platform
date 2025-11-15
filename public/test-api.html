@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>API测试页面</h1>
+    <button id="testBtn">测试 /api/honors API</button>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('testBtn').addEventListener('click', async function() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>正在请求API...</p>';
+            
+            try {
+                const response = await fetch('/api/honors');
+                console.log('响应状态:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('API返回数据:', data);
+                
+                let html = '<h2 class="success">API调用成功</h2>';
+                html += '<h3>响应数据:</h3>';
+                html += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                
+                html += '<h3>数据解析:</h3>';
+                html += '<p>数据类型: ' + typeof data + '</p>';
+                html += '<p>是否有honors字段: ' + ('honors' in data ? '是' : '否') + '</p>';
+                html += '<p>honors字段类型: ' + (data.honors ? typeof data.honors : 'N/A') + '</p>';
+                html += '<p>honors是否为数组: ' + (Array.isArray(data.honors) ? '是' : '否') + '</p>';
+                html += '<p>honors数组长度: ' + (data.honors ? data.honors.length : 'N/A') + '</p>';
+                
+                if (data.honors && Array.isArray(data.honors) && data.honors.length > 0) {
+                    html += '<h3>第一个荣誉项:</h3>';
+                    html += '<pre>' + JSON.stringify(data.honors[0], null, 2) + '</pre>';
+                }
+                
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                console.error('API调用错误:', error);
+                resultDiv.innerHTML = '<h2 class="error">API调用失败</h2><p class="error">' + error.message + '</p>';
+            }
+        });
+    </script>
+</body>
+</html>

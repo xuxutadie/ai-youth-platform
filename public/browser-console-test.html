@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>浏览器控制台API测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            background-color: #e9e9e9;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .console-info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>浏览器控制台API测试</h1>
+    
+    <div className="container">
+        <h2>测试 /api/honors 端点</h2>
+        <button id="testBtn">测试API</button>
+        <div id="result" class="result">点击按钮测试API...</div>
+        
+        <div class="console-info">
+            <h3>控制台输出说明：</h3>
+            <p>点击测试按钮后，请按F12打开浏览器控制台查看详细的调试信息。</p>
+            <p>控制台将显示：</p>
+            <ul>
+                <li>API响应状态</li>
+                <li>完整的响应数据</li>
+                <li>数据类型验证结果</li>
+                <li>honors数组详情</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('testBtn').addEventListener('click', async function() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = '正在测试API...';
+            
+            try {
+                console.log('开始调用API...');
+                const response = await fetch('/api/honors');
+                console.log('API响应状态:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('API返回的完整数据:', result);
+                
+                let output = 'API响应成功!\n\n';
+                output += `状态码: ${response.status}\n`;
+                output += `数据类型: ${typeof result}\n`;
+                output += `是否包含honors字段: ${result && 'honors' in result ? '是' : '否'}\n`;
+                
+                if (result && 'honors' in result) {
+                    output += `honors字段类型: ${typeof result.honors}\n`;
+                    output += `honors是否为数组: ${Array.isArray(result.honors) ? '是' : '否'}\n`;
+                    
+                    if (Array.isArray(result.honors)) {
+                        output += `honors数组长度: ${result.honors.length}\n`;
+                        if (result.honors.length > 0) {
+                            output += `第一个荣誉项标题: ${result.honors[0].title || '无标题'}\n`;
+                            output += `第一个荣誉项学生: ${result.honors[0].studentName || '无学生名'}\n`;
+                        }
+                    }
+                }
+                
+                output += `\n完整响应数据:\n${JSON.stringify(result, null, 2)}`;
+                
+                resultDiv.textContent = output;
+                resultDiv.className = 'result success';
+                
+                // 在控制台输出详细信息
+                console.log('测试结果:', output);
+                
+            } catch (error) {
+                console.error('API调用错误:', error);
+                resultDiv.textContent = `错误: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        });
+        
+        // 页面加载时自动测试一次
+        window.addEventListener('load', function() {
+            console.log('页面加载完成，准备测试API...');
+        });
+    </script>
+</body>
+</html>

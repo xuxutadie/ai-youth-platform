@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件上传测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>文件上传测试</h1>
+        
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="title">作品标题:</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="type">作品类型:</label>
+                <select id="type" name="type" required>
+                    <option value="">请选择作品类型</option>
+                    <option value="image">图片</option>
+                    <option value="video">视频</option>
+                    <option value="html">网页</option>
+                    <option value="document">文档</option>
+                    <option value="code">代码</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="file">选择文件:</label>
+                <input type="file" id="file" name="file" required>
+            </div>
+            
+            <button type="submit" id="submitBtn">上传文件</button>
+        </form>
+        
+        <div id="result" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        // 从test-token.txt文件中读取令牌
+        async function getToken() {
+            try {
+                const response = await fetch('/test-token.txt');
+                if (response.ok) {
+                    return await response.text();
+                }
+                return null;
+            } catch (error) {
+                console.error('获取令牌失败:', error);
+                return null;
+            }
+        }
+        
+        function showResult(message, isSuccess) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = 'result ' + (isSuccess ? 'success' : 'error');
+            resultDiv.style.display = 'block';
+        }
+        
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalBtnText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '上传中...';
+            
+            try {
+                // 获取表单数据
+                const title = document.getElementById('title').value;
+                const type = document.getElementById('type').value;
+                const file = document.getElementById('file').files[0];
+                
+                if (!title || !type || !file) {
+                    throw new Error('请填写所有必填字段并选择文件');
+                }
+                
+                // 获取令牌
+                const token = await getToken();
+                if (!token) {
+                    throw new Error('未找到访问令牌，请先登录');
+                }
+                
+                // 创建FormData对象
+                const formData = new FormData();
+                formData.append('title', title);
+                formData.append('type', type);
+                formData.append('file', file);
+                
+                // 发送上传请求
+                const response = await fetch('/api/works/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token.trim()}`
+                    },
+                    body: formData
+                });
+                
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    showResult(`上传成功!\n\n响应数据:\n${responseText}`, true);
+                } else {
+                    showResult(`上传失败!\n状态码: ${response.status}\n响应: ${responseText}`, false);
+                }
+            } catch (error) {
+                console.error('上传错误:', error);
+                showResult(`上传过程中发生错误: ${error.message}`, false);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+            }
+        });
+    </script>
+</body>
+</html>

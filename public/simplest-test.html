@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最简单的API测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        #result {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>最简单的API测试</h1>
+    <button onclick="testApi()">测试 /api/honors</button>
+    <div id="result">点击按钮测试API...</div>
+
+    <script>
+        function testApi() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = '正在测试...';
+            
+            fetch('/api/honors')
+                .then(response => {
+                    console.log('响应状态:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API返回数据:', data);
+                    resultDiv.textContent = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    console.error('错误:', error);
+                    resultDiv.textContent = '错误: ' + error.message;
+                });
+        }
+    </script>
+</body>
+</html>
