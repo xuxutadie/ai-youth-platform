@@ -32,6 +32,24 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+    // 类型、MIME 与大小校验
+    const typeAllowed = ['image','video','html']
+    if (!typeAllowed.includes(type)) {
+      return NextResponse.json({ error: '类型不合法' }, { status: 400 })
+    }
+    const mime = file.type
+    const allowedMimes = {
+      image: ['image/jpeg','image/png','image/webp','image/gif'],
+      video: ['video/mp4','video/webm','video/ogg'],
+      html: ['text/html','application/xhtml+xml']
+    } as Record<string, string[]>
+    if (!(allowedMimes[type] || []).includes(mime)) {
+      return NextResponse.json({ error: '文件类型不支持' }, { status: 400 })
+    }
+    const maxSize = type === 'video' ? 50 * 1024 * 1024 : 10 * 1024 * 1024
+    if (file.size > maxSize) {
+      return NextResponse.json({ error: '文件过大' }, { status: 413 })
+    }
     
     // 创建上传目录（如果不存在）
     const uploadDir = join(process.cwd(), 'public', 'uploads', 'works')
@@ -189,20 +207,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-    const typeAllowed = ['image','video','html']
-    if (!typeAllowed.includes(type)) {
-      return NextResponse.json({ error: '类型不合法' }, { status: 400 })
-    }
-    const mime = file.type
-    const allowedMimes = {
-      image: ['image/jpeg','image/png','image/webp','image/gif'],
-      video: ['video/mp4','video/webm','video/ogg'],
-      html: ['text/html','application/xhtml+xml']
-    } as Record<string, string[]>
-    if (!(allowedMimes[type] || []).includes(mime)) {
-      return NextResponse.json({ error: '文件类型不支持' }, { status: 400 })
-    }
-    const maxSize = type === 'video' ? 50 * 1024 * 1024 : 10 * 1024 * 1024
-    if (file.size > maxSize) {
-      return NextResponse.json({ error: '文件过大' }, { status: 413 })
-    }
