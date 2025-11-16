@@ -59,6 +59,20 @@ export async function POST(request: NextRequest) {
       )
     }
     
+    // HTML依赖重写
+    if (type === 'html') {
+      try {
+        const content = await readFile(filePath, 'utf-8')
+        const rewritten = content
+          .replace(/src=["']jquery\.min\.js["']/g, 'src="/vendor/jquery.min.js"')
+          .replace(/src=["']echarts\.min\.js["']/g, 'src="/vendor/echarts.min.js"')
+          .replace(/href=["']style\.css["']/g, 'href="/assets/default/style.css"')
+          .replace(/href=["']style1\.css["']/g, 'href="/assets/default/style1.css"')
+          .replace(/src=["']my\.js["']/g, 'src="/assets/default/my.js"')
+        await writeFile(filePath, rewritten, 'utf-8')
+      } catch {}
+    }
+
     // 创建文件URL
     const fileUrl = `/uploads/works/${fileName}`
 
