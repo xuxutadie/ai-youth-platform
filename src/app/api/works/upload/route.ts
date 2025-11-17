@@ -7,6 +7,7 @@ import { writeFile, mkdir, readFile } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import { rateLimit } from '@/lib/http'
+import { pickUploadTarget } from '@/lib/storage'
 
 export async function POST(request: NextRequest) {
   const limited = rateLimit(request, 'works_upload', 10, 60_000)
@@ -52,7 +53,8 @@ export async function POST(request: NextRequest) {
     }
     
     // 创建上传目录（如果不存在）
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'works')
+    const target = await pickUploadTarget('works')
+    const uploadDir = target.dir
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
     }

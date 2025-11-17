@@ -1,4 +1,3 @@
-'use server'
 import { NextResponse, NextRequest } from 'next/server'
 
 export function ok(data: any = {}, status = 200) {

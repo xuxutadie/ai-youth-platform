@@ -121,6 +121,8 @@ export default function LoginPage() {
           </div>
           <div className="mt-3 text-sm text-right">
             <Link href="/forgot-password" className="text-cyan-700 dark:text-cyan-200 hover:underline">忘记密码？</Link>
+            <span className="mx-2">|</span>
+            <Link href="/admin/login" className="text-blue-700 dark:text-blue-300 hover:underline">管理员登录</Link>
           </div>
           </form>
          </div>

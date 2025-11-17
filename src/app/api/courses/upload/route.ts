@@ -5,6 +5,7 @@ import { authMiddleware } from '@/lib/auth'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
+import { pickUploadTarget } from '@/lib/storage'
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,8 +31,8 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // 创建上传目录（如果不存在）
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'courses')
+    const target = await pickUploadTarget('courses')
+    const uploadDir = target.dir
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
     }
@@ -43,6 +44,15 @@ export async function POST(request: NextRequest) {
     const fileName = `${timestamp}_${originalName}`
     const filePath = join(uploadDir, fileName)
     
+    // 保存文件前大小与类型校验
+    const allowed = ['image/jpeg','image/png','image/webp','image/gif','video/mp4','video/webm','video/ogg']
+    if (!allowed.includes(file.type)) {
+      return NextResponse.json({ error: '文件类型不支持' }, { status: 400 })
+    }
+    const maxSize = file.type.startsWith('video/') ? 50 * 1024 * 1024 : 10 * 1024 * 1024
+    if (file.size > maxSize) {
+      return NextResponse.json({ error: '文件过大' }, { status: 413 })
+    }
     // 保存文件
     try {
       const bytes = await file.arrayBuffer()
