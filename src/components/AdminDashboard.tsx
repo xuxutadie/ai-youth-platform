@@ -171,8 +171,7 @@ export default function AdminDashboard() {
 
   // 处理系统设置
   const handleSystemSettings = (settingType: string) => {
-    // 根据设置类型执行相应操作
-    setMessage(`系统设置: ${settingType}`)
+    router.push(`/admin/settings/${settingType}`)
   }
 
   return (

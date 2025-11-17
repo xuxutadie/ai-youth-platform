@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
+import { writeFile, readFile, mkdir } from 'fs/promises'
+import { join } from 'path'
+import { existsSync } from 'fs'
 
 // 为开发环境添加模拟数据库功能，避免因MongoDB连接失败导致功能无法使用
 const useMockDatabase = true // 设为true以使用模拟数据库
@@ -49,6 +52,22 @@ export async function POST(request: NextRequest) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
+      try {
+        const dataDir = join(process.cwd(), 'public', 'data')
+        const metaFile = join(dataDir, 'users-meta.json')
+        if (!existsSync(dataDir)) {
+          await mkdir(dataDir, { recursive: true })
+        }
+        let list: any[] = []
+        try {
+          const content = await readFile(metaFile, 'utf-8')
+          list = content ? JSON.parse(content) : []
+        } catch {}
+        const idx = list.findIndex((u: any) => u.email === email)
+        if (idx >= 0) list[idx] = mockUser
+        else list.push(mockUser)
+        await writeFile(metaFile, JSON.stringify(list, null, 2), 'utf-8')
+      } catch {}
       
       // 返回成功响应
       return NextResponse.json(

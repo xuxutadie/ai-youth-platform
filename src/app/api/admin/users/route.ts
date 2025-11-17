@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
 import User from '@/models/User'
 import connectDB from '@/lib/mongodb'
+import { authMiddleware } from '@/lib/auth'
+import { readFile } from 'fs/promises'
+import { join } from 'path'
+import { existsSync } from 'fs'
 
 export async function GET(request: NextRequest) {
   try {
@@ -39,49 +43,43 @@ export async function GET(request: NextRequest) {
       )
     }
     
-    // 尝试连接数据库
+    const useMock = process.env.USE_MOCK_DB !== 'false'
+    if (useMock) {
+      try {
+        const metaFile = join(process.cwd(), 'public', 'data', 'users-meta.json')
+        let users: any[] = []
+        if (existsSync(metaFile)) {
+          const content = await readFile(metaFile, 'utf-8')
+          users = content ? JSON.parse(content) : []
+        }
+        if (users.length === 0) {
+          users = [
+            { _id: '1', username: 'admin', email: 'admin@example.com', role: 'admin', createdAt: new Date().toISOString() },
+            { _id: '2', username: 'teacher', email: 'teacher@example.com', role: 'teacher', createdAt: new Date().toISOString() },
+            { _id: '3', username: 'student', email: 'student@example.com', role: 'student', createdAt: new Date().toISOString() }
+          ]
+        }
+        return NextResponse.json({ users }, { status: 200 })
+      } catch {
+        const users = [
+          { _id: '1', username: 'admin', email: 'admin@example.com', role: 'admin', createdAt: new Date().toISOString() },
+          { _id: '2', username: 'teacher', email: 'teacher@example.com', role: 'teacher', createdAt: new Date().toISOString() },
+          { _id: '3', username: 'student', email: 'student@example.com', role: 'student', createdAt: new Date().toISOString() }
+        ]
+        return NextResponse.json({ users }, { status: 200 })
+      }
+    }
     try {
       await connectDB()
-      
-      // 获取所有用户
       const users = await User.find({}).select('-password')
-      
-      return NextResponse.json(
-        { users },
-        { status: 200 }
-      )
+      return NextResponse.json({ users }, { status: 200 })
     } catch (dbError) {
-      // 数据库连接失败时，返回模拟数据
-      console.error('数据库连接失败，使用模拟数据:', dbError)
-      
-      const mockUsers = [
-        {
-          _id: '1',
-          username: 'admin',
-          email: 'admin@example.com',
-          role: 'admin',
-          createdAt: new Date().toISOString()
-        },
-        {
-          _id: '2',
-          username: 'teacher',
-          email: 'teacher@example.com',
-          role: 'teacher',
-          createdAt: new Date().toISOString()
-        },
-        {
-          _id: '3',
-          username: 'student',
-          email: 'student@example.com',
-          role: 'student',
-          createdAt: new Date().toISOString()
-        }
+      const users = [
+        { _id: '1', username: 'admin', email: 'admin@example.com', role: 'admin', createdAt: new Date().toISOString() },
+        { _id: '2', username: 'teacher', email: 'teacher@example.com', role: 'teacher', createdAt: new Date().toISOString() },
+        { _id: '3', username: 'student', email: 'student@example.com', role: 'student', createdAt: new Date().toISOString() }
       ]
-      
-      return NextResponse.json(
-        { users: mockUsers },
-        { status: 200 }
-      )
+      return NextResponse.json({ users }, { status: 200 })
     }
   } catch (error) {
     console.error('获取用户错误:', error)
