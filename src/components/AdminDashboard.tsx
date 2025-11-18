@@ -305,6 +305,15 @@ export default function AdminDashboard() {
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">系统设置</h2>
           <div className="space-y-4">
               <div className="flex justify-between items-center">
+                <span>存储管理</span>
+                <button 
+                  className="text-indigo-600 hover:text-indigo-900"
+                  onClick={() => handleSystemSettings('storage')}
+                >
+                  管理
+                </button>
+              </div>
+              <div className="flex justify-between items-center">
                 <span>网站设置</span>
                 <button 
                   className="text-indigo-600 hover:text-indigo-900"
