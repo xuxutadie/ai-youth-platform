@@ -4,7 +4,7 @@ import { writeFile, readFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
 
-const useMockDatabase = process.env.USE_MOCK_DB !== 'false'
+const useMockDatabase = process.env.NODE_ENV === 'production' ? false : (process.env.USE_MOCK_DB !== 'false')
 
 export async function POST(request: NextRequest) {
   try {

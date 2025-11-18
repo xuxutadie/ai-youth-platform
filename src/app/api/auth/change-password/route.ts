@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { authMiddleware } from '@/lib/auth'
 
-const useMockDatabase = process.env.USE_MOCK_DB !== 'false'
+const useMockDatabase = process.env.NODE_ENV === 'production' ? false : (process.env.USE_MOCK_DB !== 'false')
 
 export async function POST(request: NextRequest) {
   try {

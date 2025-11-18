@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 
-const useMockDatabase = process.env.USE_MOCK_DB !== 'false'
+const useMockDatabase = process.env.NODE_ENV === 'production' ? false : (process.env.USE_MOCK_DB !== 'false')
 
 export async function POST(request: NextRequest) {
   try {
