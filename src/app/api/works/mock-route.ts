@@ -6,7 +6,7 @@ const mockWorks = [
     _id: "643d5a1c9d3f2a1b8c9e4f2a",
     title: "智能垃圾分类系统",
     type: "image",
-    url: "https://res.cloudinary.com/demo/image/upload/v1672464887/sorting-system.jpg",
+    url: "/logo.png",
     createdAt: "2023-04-15T10:30:00.000Z",
     updatedAt: "2023-04-15T10:30:00.000Z"
   },
@@ -14,7 +14,7 @@ const mockWorks = [
     _id: "643d5a1c9d3f2a1b8c9e4f2b",
     title: "AI语音助手",
     type: "video",
-    url: "https://res.cloudinary.com/demo/video/upload/v1672464887/voice-assistant.mp4",
+    url: "/uploads/works/demo.mp4",
     createdAt: "2023-04-10T14:20:00.000Z",
     updatedAt: "2023-04-10T14:20:00.000Z"
   },
@@ -22,7 +22,7 @@ const mockWorks = [
     _id: "643d5a1c9d3f2a1b8c9e4f2c",
     title: "互动式数学学习平台",
     type: "html",
-    url: "https://res.cloudinary.com/demo/raw/upload/v1672464887/math-platform.html",
+    url: "/examples/example.html",
     createdAt: "2023-04-05T09:15:00.000Z",
     updatedAt: "2023-04-05T09:15:00.000Z"
   },
@@ -30,7 +30,7 @@ const mockWorks = [
     _id: "643d5a1c9d3f2a1b8c9e4f2d",
     title: "智能植物养护系统",
     type: "image",
-    url: "https://res.cloudinary.com/demo/image/upload/v1672464887/plant-system.jpg",
+    url: "/logo.png",
     createdAt: "2023-03-28T16:45:00.000Z",
     updatedAt: "2023-03-28T16:45:00.000Z"
   }

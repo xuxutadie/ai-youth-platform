@@ -56,16 +56,16 @@ async function writeConfig(cfg: Omit<SiteConfig, 'updatedAt'>): Promise<SiteConf
   return toSave
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<Response> {
   const auth = await authMiddleware(request, ['admin'])
-  if ('success' in (auth as any) === false) return auth
+  if (!(auth as any).success) return auth as Response
   const cfg = await readConfig()
   return ok({ config: cfg })
 }
 
-export async function PUT(request: NextRequest) {
+export async function PUT(request: NextRequest): Promise<Response> {
   const auth = await authMiddleware(request, ['admin'])
-  if ('success' in (auth as any) === false) return auth
+  if (!(auth as any).success) return auth as Response
   try {
     const body = await request.json()
     const reqErr = requireFields(body, ['siteTitle', 'primaryColor', 'theme'])

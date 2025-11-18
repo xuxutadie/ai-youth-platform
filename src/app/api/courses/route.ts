@@ -80,9 +80,9 @@ export async function GET() {
     try {
       const uploadedFiles = await getUploadedFiles()
       const mockCourses = [
-        { _id: '643d5a1c9d3f2a1b8c9e4f4a', title: 'Python编程入门', type: 'video', imageUrl: '', videoUrl: 'https://res.cloudinary.com/demo/video/upload/v1672464887/python-intro.mp4', htmlUrl: '', createdAt: '2023-04-15T10:30:00.000Z', updatedAt: '2023-04-15T10:30:00.000Z' },
-        { _id: '643d5a1c9d3f2a1b8c9e4f4b', title: '人工智能基础', type: 'video', imageUrl: '', videoUrl: 'https://res.cloudinary.com/demo/video/upload/v1672464887/ai-basics.mp4', htmlUrl: '', createdAt: '2023-04-10T14:20:00.000Z', updatedAt: '2023-04-10T14:20:00.000Z' },
-        { _id: '643d5a1c9d3f2a1b8c9e4f4c', title: 'Web开发实战', type: 'html', imageUrl: '', videoUrl: '', htmlUrl: 'https://res.cloudinary.com/demo/raw/upload/v1672464887/web-dev.html', createdAt: '2023-04-05T09:15:00.000Z', updatedAt: '2023-04-05T09:15:00.000Z' }
+        { _id: '643d5a1c9d3f2a1b8c9e4f4a', title: 'Python编程入门', type: 'video', imageUrl: '', videoUrl: '', htmlUrl: '', createdAt: '2023-04-15T10:30:00.000Z', updatedAt: '2023-04-15T10:30:00.000Z' },
+        { _id: '643d5a1c9d3f2a1b8c9e4f4b', title: '人工智能基础', type: 'video', imageUrl: '', videoUrl: '', htmlUrl: '', createdAt: '2023-04-10T14:20:00.000Z', updatedAt: '2023-04-10T14:20:00.000Z' },
+        { _id: '643d5a1c9d3f2a1b8c9e4f4c', title: 'Web开发实战', type: 'html', imageUrl: '/logo.png', videoUrl: '', htmlUrl: '/examples/example.html', createdAt: '2023-04-05T09:15:00.000Z', updatedAt: '2023-04-05T09:15:00.000Z' }
       ]
       const allCourses = [...mockCourses, ...uploadedFiles]
       return NextResponse.json({ courses: allCourses }, { status: 200 })

@@ -6,7 +6,7 @@ const mockCompetitions = [
     _id: "643d5a1c9d3f2a1b8c9e4f1a",
     name: "全国青少年AI创新大赛",
     date: "2023-08-15",
-    imageUrl: "https://res.cloudinary.com/demo/image/upload/v1672464887/ai-competition.jpg",
+    imageUrl: "/logo.png",
     createdAt: "2023-04-15T10:30:00.000Z",
     updatedAt: "2023-04-15T10:30:00.000Z"
   },
@@ -14,7 +14,7 @@ const mockCompetitions = [
     _id: "643d5a1c9d3f2a1b8c9e4f1b",
     name: "青少年机器人编程挑战赛",
     date: "2023-07-20",
-    imageUrl: "https://res.cloudinary.com/demo/image/upload/v1672464887/robot-competition.jpg",
+    imageUrl: "/logo.png",
     createdAt: "2023-04-10T14:20:00.000Z",
     updatedAt: "2023-04-10T14:20:00.000Z"
   },
@@ -22,7 +22,7 @@ const mockCompetitions = [
     _id: "643d5a1c9d3f2a1b8c9e4f1c",
     name: "未来科技创意大赛",
     date: "2023-09-10",
-    imageUrl: "https://res.cloudinary.com/demo/image/upload/v1672464887/tech-competition.jpg",
+    imageUrl: "/logo.png",
     createdAt: "2023-04-05T09:15:00.000Z",
     updatedAt: "2023-04-05T09:15:00.000Z"
   }

@@ -6,7 +6,7 @@ const mockHonors = [
     _id: "643d5a1c9d3f2a1b8c9e4f3a",
     title: "全国青少年科技创新大赛一等奖",
     studentName: "张小明",
-    imageUrl: "https://res.cloudinary.com/demo/image/upload/v1672464887/award1.jpg",
+    imageUrl: "/logo.png",
     date: "2023-06-20",
     createdAt: "2023-06-20T10:30:00.000Z",
     updatedAt: "2023-06-20T10:30:00.000Z"
@@ -15,7 +15,7 @@ const mockHonors = [
     _id: "643d5a1c9d3f2a1b8c9e4f3b",
     title: "省级编程竞赛特等奖",
     studentName: "李小红",
-    imageUrl: "https://res.cloudinary.com/demo/image/upload/v1672464887/award2.jpg",
+    imageUrl: "/logo.png",
     date: "2023-05-15",
     createdAt: "2023-05-15T14:20:00.000Z",
     updatedAt: "2023-05-15T14:20:00.000Z"
@@ -24,7 +24,7 @@ const mockHonors = [
     _id: "643d5a1c9d3f2a1b8c9e4f3c",
     title: "国际青少年AI设计大赛银奖",
     studentName: "王小华",
-    imageUrl: "https://res.cloudinary.com/demo/image/upload/v1672464887/award3.jpg",
+    imageUrl: "/logo.png",
     date: "2023-07-10",
     createdAt: "2023-07-10T09:15:00.000Z",
     updatedAt: "2023-07-10T09:15:00.000Z"
