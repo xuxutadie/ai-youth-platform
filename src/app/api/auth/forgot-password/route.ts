@@ -3,8 +3,7 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 
-// 为开发环境添加模拟数据库功能，避免因MongoDB不可用导致流程中断
-const useMockDatabase = true
+const useMockDatabase = process.env.USE_MOCK_DB !== 'false'
 
 export async function POST(request: NextRequest) {
   try {

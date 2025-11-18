@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { authMiddleware } from '@/lib/auth'
 
-// 与登录/注册保持一致的开发模式开关
-const useMockDatabase = true
+const useMockDatabase = process.env.USE_MOCK_DB !== 'false'
 
 export async function POST(request: NextRequest) {
   try {

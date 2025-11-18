@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 
-// 与登录/注册保持一致的开发模式开关
-const useMockDatabase = true
+const useMockDatabase = process.env.USE_MOCK_DB !== 'false'
 
 export async function POST(request: NextRequest) {
   try {
