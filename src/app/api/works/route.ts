@@ -283,11 +283,8 @@ export async function POST(request: NextRequest) {
   try {
     // 验证用户身份
     const authResult = await authMiddleware(request)
-    if (!authResult.success) {
-      return NextResponse.json(
-        { error: authResult.error },
-        { status: authResult.status }
-      )
+    if (authResult instanceof NextResponse) {
+      return authResult
     }
 
     const formData = await request.formData()
@@ -365,11 +362,8 @@ export async function PUT(request: NextRequest) {
   try {
     // 验证用户身份
     const authResult = await authMiddleware(request)
-    if (!authResult.success) {
-      return NextResponse.json(
-        { error: authResult.error },
-        { status: authResult.status }
-      )
+    if (authResult instanceof NextResponse) {
+      return authResult
     }
 
     const { id, title, type, description, studentName } = await request.json()
@@ -414,11 +408,11 @@ export async function PUT(request: NextRequest) {
     )) {
       // 返回模拟成功响应
       const mockWork = {
-        _id: id,
-        title: title || "更新后的模拟作品",
-        type: type || "image",
-        description: description || "这是一个更新后的模拟作品，因为数据库连接失败",
-        studentName: studentName || "模拟学生",
+        _id: `mock_${Date.now()}`,
+        title: "更新后的模拟作品",
+        type: "image",
+        description: "这是一个更新后的模拟作品，因为数据库连接失败",
+        studentName: "模拟学生",
         imageUrl: "https://picsum.photos/seed/updatedwork/400/300.jpg",
         videoUrl: "",
         htmlUrl: "",

@@ -216,7 +216,7 @@ export default function ContentManagement({ activeTab: initialTab = 'competition
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setEditingItem(prev => ({ ...prev, [name]: value }))
+    setEditingItem((prev: any) => ({ ...prev, [name]: value }))
   }
 
   if (isLoading) { return <div className="flex justify-center items-center min-h-screen">加载中...</div> }

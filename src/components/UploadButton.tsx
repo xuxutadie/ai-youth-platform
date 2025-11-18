@@ -286,7 +286,7 @@ export default function UploadButton({ type, className }: UploadButtonProps) {
                         <input
                           id={field.name}
                           name={field.name}
-                          type={field.type || 'text'}
+                          type={(field as any).type || 'text'}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-white text-black placeholder-gray-800 font-medium"
                           placeholder={field.placeholder}
                           value={formData[field.name] || ''}

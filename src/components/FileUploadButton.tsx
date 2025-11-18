@@ -75,7 +75,7 @@ export default function FileUploadButton({ className }: FileUploadButtonProps) {
 
       // 作者与年级必填；班级自动取自个人信息
       const finalAuthorName = (formData.authorName ?? user?.username ?? '').trim()
-      const finalClassName = (user?.className ?? '').trim()
+      const finalClassName = ((user as any)?.className ?? '').trim()
       const finalGrade = (formData.grade ?? '').trim()
       if (!finalAuthorName) {
         throw new Error('请填写作者姓名')
@@ -340,7 +340,7 @@ export default function FileUploadButton({ className }: FileUploadButtonProps) {
                     已选择文件: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                   </div>
                   <div>
-                    作者信息: {(formData.authorName ?? user?.username ?? '') || '未填写'} · 年级: {(formData.grade ?? '') || '未填写'} · 班级: {(user?.className ?? '') || '未填写'}
+                    作者信息: {(formData.authorName ?? user?.username ?? '') || '未填写'} · 年级: {(formData.grade ?? '') || '未填写'} · 班级: {(((user as any)?.className) ?? '') || '未填写'}
                   </div>
                 </div>
               )}

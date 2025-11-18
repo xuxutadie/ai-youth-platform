@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { join, dirname } from 'path'
 import { readFile, writeFile, mkdir } from 'fs/promises'
 import { existsSync } from 'fs'
@@ -49,7 +49,7 @@ function resolvePath(p: string) {
 
 export async function GET(request: NextRequest) {
   const auth = await authMiddleware(request, ['admin'])
-  if ('success' in (auth as any) === false) return auth
+  if (auth instanceof NextResponse) return auth
   let cfgs = await readConfigs()
   if (!cfgs.find(c => c.id === 'default')) {
     cfgs.push({ id: 'default', path: './upload', maxGB: 10, priority: 1, enabled: true })
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const auth = await authMiddleware(request, ['admin'])
-  if ('success' in (auth as any) === false) return auth
+  if (auth instanceof NextResponse) return auth
   const body = await request.json()
   const { id, path, maxGB = 10, priority = 1, enabled = true } = body || {}
   if (!id || !path) return badRequest('缺少必填项', { missing: ['id','path'] })
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   const auth = await authMiddleware(request, ['admin'])
-  if ('success' in (auth as any) === false) return auth
+  if (auth instanceof NextResponse) return auth
   const body = await request.json()
   const { id } = body || {}
   if (!id) return badRequest('缺少ID')
@@ -109,7 +109,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   const auth = await authMiddleware(request, ['admin'])
-  if ('success' in (auth as any) === false) return auth
+  if (auth instanceof NextResponse) return auth
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')

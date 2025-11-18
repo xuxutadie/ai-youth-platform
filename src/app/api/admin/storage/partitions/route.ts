@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { exec } from 'child_process'
 import { promisify } from 'util'
 import { ok, error } from '@/lib/http'
@@ -72,7 +72,7 @@ async function windowsList(): Promise<PartInfo[]> {
 
 export async function GET(request: NextRequest) {
   const auth = await authMiddleware(request, ['admin'])
-  if ('success' in (auth as any) === false) return auth
+  if (auth instanceof NextResponse) return auth
   try {
     const list = process.platform === 'win32' ? await windowsList() : await linuxList()
     return ok({ partitions: list })

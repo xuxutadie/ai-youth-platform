@@ -21,7 +21,7 @@ export async function DELETE(request: NextRequest) {
 
     // 从URL路径获取ID
     const url = new URL(request.url)
-    id = url.pathname.split('/').pop()
+    id = url.pathname.split('/').pop() || null
 
     if (!id) {
       return NextResponse.json(
@@ -102,7 +102,7 @@ export async function DELETE(request: NextRequest) {
       { message: '作品删除成功' },
       { status: 200 }
     )
-  } catch (error) {
+  } catch (error: any) {
     console.error('删除作品错误:', error)
     
     // 如果是数据库连接错误，返回模拟成功响应
@@ -121,7 +121,7 @@ export async function DELETE(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { error: '服务器内部错误', details: error.message },
+      { error: '服务器内部错误', details: String(error?.message || error) },
       { status: 500 }
     )
   }
