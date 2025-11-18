@@ -242,34 +242,16 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 无过滤时的回退：返回上传目录中的文件 + 少量示例数据，确保页面正常
+    // 无过滤时的回退：生产环境仅返回本地上传文件；开发环境附加示例数据
     try {
       const uploadedFiles = await getUploadedFiles()
+      if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json({ works: uploadedFiles }, { status: 200 })
+      }
       const mockWorks = [
-        {
-          _id: "643d5a1c9d3f2a1b8c9e4f2a",
-          title: "智能垃圾分类系统",
-          type: "image",
-          url: "https://picsum.photos/seed/1/400/300",
-          createdAt: "2023-04-15T10:30:00.000Z",
-          updatedAt: "2023-04-15T10:30:00.000Z"
-        },
-        {
-          _id: "643d5a1c9d3f2a1b8c9e4f2b",
-          title: "AI 辅助学习平台",
-          type: "video",
-          url: "https://www.w3schools.com/html/mov_bbb.mp4",
-          createdAt: "2023-05-20T14:00:00.000Z",
-          updatedAt: "2023-05-20T14:00:00.000Z"
-        },
-        {
-          _id: "643d5a1c9d3f2a1b8c9e4f2c",
-          title: "青少年编程挑战赛作品",
-          type: "html",
-          url: "/examples/example.html",
-          createdAt: "2023-06-01T09:00:00.000Z",
-          updatedAt: "2023-06-01T09:00:00.000Z"
-        }
+        { _id: "643d5a1c9d3f2a1b8c9e4f2a", title: "智能垃圾分类系统", type: "image", url: "https://picsum.photos/seed/1/400/300", createdAt: "2023-04-15T10:30:00.000Z", updatedAt: "2023-04-15T10:30:00.000Z" },
+        { _id: "643d5a1c9d3f2a1b8c9e4f2b", title: "AI 辅助学习平台", type: "video", url: "https://www.w3schools.com/html/mov_bbb.mp4", createdAt: "2023-05-20T14:00:00.000Z", updatedAt: "2023-05-20T14:00:00.000Z" },
+        { _id: "643d5a1c9d3f2a1b8c9e4f2c", title: "青少年编程挑战赛作品", type: "html", url: "/examples/example.html", createdAt: "2023-06-01T09:00:00.000Z", updatedAt: "2023-06-01T09:00:00.000Z" }
       ]
       const allWorks = [...mockWorks, ...uploadedFiles]
       return NextResponse.json({ works: allWorks }, { status: 200 })

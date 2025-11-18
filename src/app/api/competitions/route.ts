@@ -94,7 +94,7 @@ export async function GET() {
   } catch (error) {
     console.error('获取赛事错误:', error)
     
-    // 如果是数据库连接错误，使用模拟数据
+    // 如果是数据库连接错误，生产环境仅返回本地上传文件；开发环境返回演示数据
     if (error instanceof Error && (
       error.message.includes('ECONNREFUSED') || 
       error.message.includes('MongoNetworkError') ||
@@ -104,8 +104,14 @@ export async function GET() {
     )) {
       // 获取上传的文件
       const uploadedFiles = await getUploadedFiles()
-      
-      // 返回模拟数据
+      // 生产环境：仅返回本地上传文件
+      if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json(
+          { competitions: uploadedFiles },
+          { status: 200 }
+        )
+      }
+      // 开发环境：返回演示数据 + 本地上传文件
       const mockCompetitions = [
         {
           _id: "643d5a1c9d3f2a1b8c9e4f1a",
@@ -131,9 +137,7 @@ export async function GET() {
           createdAt: "2023-04-05T09:15:00.000Z",
           updatedAt: "2023-04-05T09:15:00.000Z"
         }
-      ];
-      
-      // 合并模拟数据和上传文件
+      ]
       const allCompetitions = [...mockCompetitions, ...uploadedFiles]
       
       return NextResponse.json(
