@@ -54,6 +54,15 @@ export default function Page() {
     await loadAll()
   }
 
+  const edit = async (row: ConfigRow) => {
+    const newMax = prompt('设置最大容量(GB)，留空不变', String(row.maxGB))
+    const newPri = prompt('设置优先级，留空不变', String(row.priority))
+    const patch: Partial<ConfigRow> = {}
+    if (newMax !== null && newMax.trim() !== '') patch.maxGB = Number(newMax)
+    if (newPri !== null && newPri.trim() !== '') patch.priority = Number(newPri)
+    if (Object.keys(patch).length) await update(row, patch)
+  }
+
   const remove = async (id: string) => {
     await apiDelete(`/api/admin/storage/configs?id=${encodeURIComponent(id)}`)
     await loadAll()
@@ -128,7 +137,7 @@ export default function Page() {
               {configs.map(c => (
                 <tr key={c.id} className="border-t bg-white text-black" style={{ backgroundColor: '#fff', color: '#000' }}>
                   <td className="p-2">{c.id}</td>
-                  <td className="p-2">{c.path}</td>
+                  <td className="p-2">{(c as any).absPath || c.path}</td>
                   <td className="p-2">{c.stats?.maxGB ?? c.maxGB} GB</td>
                   <td className="p-2">{c.stats?.usedGB ?? 0} GB</td>
                   <td className="p-2">{c.stats?.availGB ?? 0} GB</td>
@@ -136,6 +145,7 @@ export default function Page() {
                   <td className="p-2">{c.priority}</td>
                   <td className="p-2">{c.enabled ? '启用' : '禁用'}</td>
                   <td className="p-2 space-x-2">
+                    <button className="bg-gray-600 text-white px-3 py-1 rounded" onClick={() => edit(c)}>编辑</button>
                     <button className="bg-indigo-600 text-white px-3 py-1 rounded" onClick={() => update(c, { enabled: !c.enabled })}>{c.enabled ? '禁用' : '启用'}</button>
                     <button className="bg-red-600 text-white px-3 py-1 rounded" onClick={() => remove(c.id)}>删除</button>
                   </td>

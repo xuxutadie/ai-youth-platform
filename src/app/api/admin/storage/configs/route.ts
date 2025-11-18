@@ -5,6 +5,7 @@ import { existsSync } from 'fs'
 import { ok, badRequest, error } from '@/lib/http'
 import { authMiddleware } from '@/lib/auth'
 import { getDirSize, getDiskUsageForPath } from '@/lib/storage'
+import { storageConfig } from '@/config/storage'
 
 type StorageConfig = {
   id: string
@@ -37,19 +38,34 @@ async function writeConfigs(cfgs: StorageConfig[]) {
 
 function toGB(n: number) { return Math.round(n / 1024 / 1024 / 1024 * 100) / 100 }
 
+function isAbsolutePath(p: string) {
+  return p.startsWith('/') || /^[a-zA-Z]:[\\\/]/.test(p)
+}
+
+function resolvePath(p: string) {
+  if (p === './upload') return storageConfig.primaryRoot
+  return isAbsolutePath(p) ? p : join(process.cwd(), p)
+}
+
 export async function GET(request: NextRequest) {
   const auth = await authMiddleware(request, ['admin'])
   if ('success' in (auth as any) === false) return auth
-  const cfgs = await readConfigs()
+  let cfgs = await readConfigs()
+  if (!cfgs.find(c => c.id === 'default')) {
+    cfgs.push({ id: 'default', path: './upload', maxGB: 10, priority: 1, enabled: true })
+    await writeConfigs(cfgs)
+  }
   const enriched = await Promise.all(cfgs.map(async (c) => {
-    const usedBytes = await getDirSize(c.path).catch(() => 0)
-    const du = await getDiskUsageForPath(c.path)
+    const abs = resolvePath(c.path)
+    const usedBytes = await getDirSize(abs).catch(() => 0)
+    const du = await getDiskUsageForPath(abs)
     const diskAvail = du ? du.avail : 0
     const maxBytes = c.maxGB > 0 ? c.maxGB * 1024 * 1024 * 1024 : (du ? du.total : 0)
     const available = Math.min(diskAvail, Math.max(0, maxBytes - usedBytes))
     const usagePercent = maxBytes > 0 ? Math.round((usedBytes / maxBytes) * 1000) / 10 : 0
     return {
       ...c,
+      absPath: abs,
       stats: {
         maxGB: toGB(maxBytes),
         usedGB: toGB(usedBytes),
@@ -83,7 +99,10 @@ export async function PUT(request: NextRequest) {
   const cfgs = await readConfigs()
   const idx = cfgs.findIndex(x => x.id === id)
   if (idx < 0) return badRequest('未找到配置')
-  cfgs[idx] = { ...cfgs[idx], ...body }
+  const next = { ...cfgs[idx], ...body }
+  if (typeof next.maxGB === 'string') next.maxGB = Number(next.maxGB) || 0
+  if (typeof next.priority === 'string') next.priority = Number(next.priority) || 1
+  cfgs[idx] = next
   await writeConfigs(cfgs)
   return ok({ message: '更新成功' })
 }
