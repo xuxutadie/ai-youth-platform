@@ -60,13 +60,13 @@ export default function Page() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 bg-white text-black dark:bg-white dark:text-black" style={{ backgroundColor: '#fff', color: '#000' }}>
       <h1 className="text-2xl font-bold">存储管理</h1>
 
-      <section className="rounded border p-4">
+      <section className="rounded border p-4 bg-white text-black dark:bg-white dark:text-black" style={{ backgroundColor: '#fff', color: '#000' }}>
         <h2 className="font-semibold mb-2">系统分区（自动探测，已排除 EFI/临时分区）</h2>
         <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
+          <table className="min-w-full text-sm bg-white text-black dark:bg-white dark:text-black" style={{ backgroundColor: '#fff', color: '#000' }}>
             <thead>
               <tr className="text-left">
                 <th className="p-2">设备</th>
@@ -80,7 +80,7 @@ export default function Page() {
             </thead>
             <tbody>
               {parts.map(p => (
-                <tr key={p.device} className="border-t">
+                <tr key={p.device} className="border-t bg-white text-black" style={{ backgroundColor: '#fff', color: '#000' }}>
                   <td className="p-2">{p.device}</td>
                   <td className="p-2">{p.mountpoint}</td>
                   <td className="p-2">{p.fstype}</td>
@@ -95,22 +95,22 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="rounded border p-4 space-y-3">
+      <section className="rounded border p-4 space-y-3 bg-white text-black dark:bg-white dark:text-black" style={{ backgroundColor: '#fff', color: '#000' }}>
         <h2 className="font-semibold">添加存储配置</h2>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
-          <input className="border p-2" placeholder="存储ID" value={form.id} onChange={e => setForm({ ...form, id: e.target.value })} />
-          <input className="border p-2" placeholder="存储路径" value={form.path} onChange={e => setForm({ ...form, path: e.target.value })} />
-          <input className="border p-2" type="number" placeholder="最大容量(GB)" value={form.maxGB} onChange={e => setForm({ ...form, maxGB: Number(e.target.value) })} />
-          <input className="border p-2" type="number" placeholder="优先级" value={form.priority} onChange={e => setForm({ ...form, priority: Number(e.target.value) })} />
+          <input className="border p-2 bg-white text-black placeholder-black dark:bg-white dark:text-black" style={{ backgroundColor: '#fff', color: '#000' }} placeholder="存储ID" value={form.id} onChange={e => setForm({ ...form, id: e.target.value })} />
+          <input className="border p-2 bg-white text-black placeholder-black dark:bg-white dark:text-black" style={{ backgroundColor: '#fff', color: '#000' }} placeholder="存储路径" value={form.path} onChange={e => setForm({ ...form, path: e.target.value })} />
+          <input className="border p-2 bg-white text-black placeholder-black dark:bg-white dark:text-black" style={{ backgroundColor: '#fff', color: '#000' }} type="number" placeholder="最大容量(GB)" value={form.maxGB} onChange={e => setForm({ ...form, maxGB: Number(e.target.value) })} />
+          <input className="border p-2 bg-white text-black placeholder-black dark:bg-white dark:text-black" style={{ backgroundColor: '#fff', color: '#000' }} type="number" placeholder="优先级" value={form.priority} onChange={e => setForm({ ...form, priority: Number(e.target.value) })} />
           <label className="flex items-center gap-2"><input type="checkbox" checked={form.enabled} onChange={e => setForm({ ...form, enabled: e.target.checked })} />启用</label>
         </div>
         <div className="flex items-center gap-2"><button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={add}>添加</button><span className="text-gray-600">{msg}</span></div>
       </section>
 
-      <section className="rounded border p-4">
+      <section className="rounded border p-4 bg-white text-black dark:bg-white dark:text-black" style={{ backgroundColor: '#fff', color: '#000' }}>
         <h2 className="font-semibold mb-2">存储配置列表</h2>
         <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
+          <table className="min-w-full text-sm bg-white text-black dark:bg-white dark:text-black" style={{ backgroundColor: '#fff', color: '#000' }}>
             <thead>
               <tr className="text-left">
                 <th className="p-2">ID</th>
@@ -126,7 +126,7 @@ export default function Page() {
             </thead>
             <tbody>
               {configs.map(c => (
-                <tr key={c.id} className="border-t">
+                <tr key={c.id} className="border-t bg-white text-black" style={{ backgroundColor: '#fff', color: '#000' }}>
                   <td className="p-2">{c.id}</td>
                   <td className="p-2">{c.path}</td>
                   <td className="p-2">{c.stats?.maxGB ?? c.maxGB} GB</td>
