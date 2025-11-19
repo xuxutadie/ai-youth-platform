@@ -5,6 +5,7 @@ import { ok, error } from '@/lib/http'
 import { authMiddleware } from '@/lib/auth'
 
 const execp = promisify(exec)
+export const dynamic = 'force-dynamic'
 
 type PartInfo = {
   device: string
