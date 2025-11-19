@@ -149,11 +149,24 @@ export async function GET(request: NextRequest) {
         let url = base.url || base.imageUrl || base.videoUrl || base.htmlUrl
         let fileName = ''
         if (url) {
-          fileName = url.includes('/') ? url.substring(url.lastIndexOf('/') + 1) : url
-          if (!url.startsWith('http')) {
-            const cleanFileName = url.startsWith('/') ? url.substring(1) : url
-            const fullUrl = `/api/uploads/file?type=works&name=${encodeURIComponent(cleanFileName)}`
-            url = fullUrl
+          try {
+            const parsed = new URL(url, 'http://localhost')
+            const nameParam = parsed.searchParams.get('name')
+            const typeParam = parsed.searchParams.get('type') || 'works'
+            if (parsed.pathname === '/api/uploads/file' && nameParam) {
+              fileName = nameParam
+              url = `/api/uploads/file?type=${typeParam}&name=${encodeURIComponent(nameParam)}`
+            } else {
+              fileName = url.includes('/') ? url.substring(url.lastIndexOf('/') + 1) : url
+              if (!url.startsWith('http')) {
+                url = `/api/uploads/file?type=works&name=${encodeURIComponent(fileName)}`
+              }
+            }
+          } catch {
+            fileName = url.includes('/') ? url.substring(url.lastIndexOf('/') + 1) : url
+            if (!url.startsWith('http')) {
+              url = `/api/uploads/file?type=works&name=${encodeURIComponent(fileName)}`
+            }
           }
         }
         const m = fileName ? meta[fileName] : undefined
@@ -189,11 +202,24 @@ export async function GET(request: NextRequest) {
       let url = base.url || base.imageUrl || base.videoUrl || base.htmlUrl
       let fileName = ''
       if (url) {
-        fileName = url.includes('/') ? url.substring(url.lastIndexOf('/') + 1) : url
-        if (!url.startsWith('http')) {
-          const cleanFileName = url.startsWith('/') ? url.substring(1) : url
-          const fullUrl = `/api/uploads/file?type=works&name=${encodeURIComponent(cleanFileName)}`
-          url = fullUrl
+        try {
+          const parsed = new URL(url, 'http://localhost')
+          const nameParam = parsed.searchParams.get('name')
+          const typeParam = parsed.searchParams.get('type') || 'works'
+          if (parsed.pathname === '/api/uploads/file' && nameParam) {
+            fileName = nameParam
+            url = `/api/uploads/file?type=${typeParam}&name=${encodeURIComponent(nameParam)}`
+          } else {
+            fileName = url.includes('/') ? url.substring(url.lastIndexOf('/') + 1) : url
+            if (!url.startsWith('http')) {
+              url = `/api/uploads/file?type=works&name=${encodeURIComponent(fileName)}`
+            }
+          }
+        } catch {
+          fileName = url.includes('/') ? url.substring(url.lastIndexOf('/') + 1) : url
+          if (!url.startsWith('http')) {
+            url = `/api/uploads/file?type=works&name=${encodeURIComponent(fileName)}`
+          }
         }
       }
       const m = fileName ? meta[fileName] : undefined
