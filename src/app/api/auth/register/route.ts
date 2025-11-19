@@ -8,7 +8,7 @@ const useMockDatabase = process.env.NODE_ENV === 'production' ? false : (process
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, email, password, role = 'student' } = await request.json()
+    const { username, email, password } = await request.json()
     
     // 验证输入
     if (!username || !email || !password) {
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
         id: Date.now().toString(), // 模拟ID
         username,
         email,
-        role, // 使用传入的role参数
+        role: 'student',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
         { 
           message: '注册成功（模拟模式）', 
           user: mockUser,
-          notice: '当前为开发模式，用户数据未真实存储'
+          notice: '当前为开发模式，角色分配仅支持学生，教师/管理员需由管理员授权'
         },
         { status: 201 }
       )
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
           username,
           email,
           password: hashedPassword,
-          role // 使用传入的role参数
+          role: 'student'
         })
         
         // 返回用户信息

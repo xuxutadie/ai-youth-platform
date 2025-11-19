@@ -5,6 +5,7 @@ import { rateLimit } from '@/lib/http'
 
 // 为开发环境添加模拟数据库功能
 const useMockDatabase = process.env.USE_MOCK_DB !== 'false'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '30761985@qq.com'
 
 export async function POST(request: NextRequest) {
   const limited = rateLimit(request, 'auth_login', 20, 60_000)
@@ -36,8 +37,8 @@ export async function POST(request: NextRequest) {
       // 模拟用户对象
       let role = 'student' // 默认角色
       
-      // 特殊管理员账号
-      if (email === 'admin@example.com') {
+      // 特定管理员账号（仅指定邮箱）
+      if (email === ADMIN_EMAIL) {
         role = 'admin'
       } else if (email === 'teacher@example.com') {
         role = 'teacher'

@@ -120,6 +120,27 @@ export async function PUT(request: NextRequest) {
     try {
       await connectDB()
       
+      // 管理员邮箱与唯一性校验
+      if (role === 'admin') {
+        const targetUser = await User.findById(userId)
+        if (!targetUser) {
+          return NextResponse.json({ error: '用户不存在' }, { status: 404 })
+        }
+        const adminEmail = process.env.ADMIN_EMAIL || '30761985@qq.com'
+        if (targetUser.email !== adminEmail) {
+          return NextResponse.json(
+            { error: '仅允许指定邮箱设为管理员' },
+            { status: 403 }
+          )
+        }
+        const existingAdmin = await User.findOne({ role: 'admin' })
+        if (existingAdmin && existingAdmin._id.toString() !== userId) {
+          return NextResponse.json(
+            { error: '系统已存在管理员账号，管理员唯一' },
+            { status: 409 }
+          )
+        }
+      }
       // 更新用户角色
       const updatedUser = await User.findByIdAndUpdate(
         userId,
