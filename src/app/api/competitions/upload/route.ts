@@ -5,7 +5,7 @@ import { authMiddleware } from '@/lib/auth'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
-import { pickUploadTarget } from '@/lib/storage'
+import { pickUploadTarget, loadUploadLimits } from '@/lib/storage'
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,7 +46,8 @@ export async function POST(request: NextRequest) {
     if (!allowed.includes(file.type)) {
       return NextResponse.json({ error: '文件类型不支持' }, { status: 400 })
     }
-    const maxSize = 10 * 1024 * 1024
+    const limits = await loadUploadLimits()
+    const maxSize = limits.imageMB * 1024 * 1024
     if (file.size > maxSize) {
       return NextResponse.json({ error: '文件过大' }, { status: 413 })
     }

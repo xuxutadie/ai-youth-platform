@@ -8,10 +8,11 @@ type Config = {
   logoUrl: string
   primaryColor: string
   theme: 'light' | 'dark'
+  uploadLimits: { imageMB: number; videoMB: number; htmlMB: number }
 }
 
 export default function Page() {
-  const [form, setForm] = useState<Config>({ siteTitle: '', logoUrl: '', primaryColor: '#1677ff', theme: 'light' })
+  const [form, setForm] = useState<Config>({ siteTitle: '', logoUrl: '', primaryColor: '#1677ff', theme: 'light', uploadLimits: { imageMB: 10, videoMB: 50, htmlMB: 10 } })
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
@@ -32,6 +33,11 @@ export default function Page() {
           logoUrl: cfg.logoUrl || '',
           primaryColor: cfg.primaryColor || '#1677ff',
           theme: cfg.theme === 'dark' ? 'dark' : 'light',
+          uploadLimits: {
+            imageMB: Number(cfg.uploadLimits?.imageMB) > 0 ? Number(cfg.uploadLimits.imageMB) : 10,
+            videoMB: Number(cfg.uploadLimits?.videoMB) > 0 ? Number(cfg.uploadLimits.videoMB) : 50,
+            htmlMB: Number(cfg.uploadLimits?.htmlMB) > 0 ? Number(cfg.uploadLimits.htmlMB) : 10,
+          }
         })
       }
       setLoading(false)
@@ -42,6 +48,12 @@ export default function Page() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setForm(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleLimitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    const num = Math.max(1, parseInt(value || '0', 10))
+    setForm(prev => ({ ...prev, uploadLimits: { ...prev.uploadLimits, [name]: num } as any }))
   }
 
   const handleSave = async (e: React.FormEvent) => {
@@ -120,6 +132,45 @@ export default function Page() {
                 value={form.primaryColor}
                 onChange={handleChange}
               />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-base font-medium text-gray-800 dark:text-gray-100 mb-1">上传大小限制（管理员可调）</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <div className="text-sm mb-1">图片最大MB</div>
+                <input
+                  name="imageMB"
+                  type="number"
+                  min={1}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-base bg-white dark:bg-white text-black"
+                  value={form.uploadLimits.imageMB}
+                  onChange={handleLimitChange}
+                />
+              </div>
+              <div>
+                <div className="text-sm mb-1">视频最大MB</div>
+                <input
+                  name="videoMB"
+                  type="number"
+                  min={1}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-base bg-white dark:bg-white text-black"
+                  value={form.uploadLimits.videoMB}
+                  onChange={handleLimitChange}
+                />
+              </div>
+              <div>
+                <div className="text-sm mb-1">HTML最大MB</div>
+                <input
+                  name="htmlMB"
+                  type="number"
+                  min={1}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-base bg-white dark:bg-white text-black"
+                  value={form.uploadLimits.htmlMB}
+                  onChange={handleLimitChange}
+                />
+              </div>
             </div>
           </div>
 

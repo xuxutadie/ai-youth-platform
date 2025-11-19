@@ -10,7 +10,10 @@ export default function useWorks() {
   useEffect(() => {
     const fetchWorks = async () => {
       try {
-        const res = await fetch('/api/works')
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+        const res = await fetch('/api/works', {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : undefined
+        })
         if (!res.ok) {
           throw new Error('Failed to fetch works')
         }

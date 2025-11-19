@@ -126,3 +126,25 @@ export async function listUploadRoots(): Promise<string[]> {
   const unique = Array.from(new Set(roots))
   return unique
 }
+
+export type UploadLimits = { imageMB: number; videoMB: number; htmlMB: number }
+
+export async function loadUploadLimits(): Promise<UploadLimits> {
+  try {
+    const p = join(process.cwd(), 'public', 'data', 'website-config.json')
+    const t = await (await import('fs/promises')).readFile(p, 'utf-8').catch(() => '')
+    const raw = t ? JSON.parse(t) : {}
+    const ul = raw.uploadLimits || {}
+    const toNum = (v: any, d: number) => {
+      const n = Number(v)
+      return Number.isFinite(n) && n > 0 ? n : d
+    }
+    return {
+      imageMB: toNum(ul.imageMB, 10),
+      videoMB: toNum(ul.videoMB, 50),
+      htmlMB: toNum(ul.htmlMB, 10)
+    }
+  } catch {
+    return { imageMB: 10, videoMB: 50, htmlMB: 10 }
+  }
+}

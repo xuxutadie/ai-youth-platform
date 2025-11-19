@@ -7,7 +7,7 @@ import { writeFile, mkdir, readFile } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
 import { rateLimit } from '@/lib/http'
-import { pickUploadTarget } from '@/lib/storage'
+import { pickUploadTarget, loadUploadLimits } from '@/lib/storage'
 
 export async function POST(request: NextRequest) {
   const limited = rateLimit(request, 'works_upload', 10, 60_000)
@@ -47,7 +47,8 @@ export async function POST(request: NextRequest) {
     if (!(allowedMimes[type] || []).includes(mime)) {
       return NextResponse.json({ error: '文件类型不支持' }, { status: 400 })
     }
-    const maxSize = type === 'video' ? 50 * 1024 * 1024 : 10 * 1024 * 1024
+    const limits = await loadUploadLimits()
+    const maxSize = type === 'video' ? limits.videoMB * 1024 * 1024 : (type === 'html' ? limits.htmlMB * 1024 * 1024 : limits.imageMB * 1024 * 1024)
     if (file.size > maxSize) {
       return NextResponse.json({ error: '文件过大' }, { status: 413 })
     }

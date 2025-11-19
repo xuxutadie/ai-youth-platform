@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import jwt from 'jsonwebtoken'
 import Work from '@/models/Work'
 import connectDB from '@/lib/mongodb'
 import { authMiddleware } from '@/lib/auth'
@@ -104,7 +105,16 @@ async function getUploadedFiles() {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const uploaderId = searchParams.get('uploaderId')
+    let uploaderId = searchParams.get('uploaderId') || null
+    const authHeader = request.headers.get('authorization')
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const decoded = jwt.verify(authHeader.substring(7), process.env.JWT_SECRET || 'fallback-secret-key') as { userId: string; role: string }
+        if (decoded && decoded.role === 'student') {
+          uploaderId = decoded.userId
+        }
+      } catch {}
+    }
 
     // 小工具：从URL中提取上传文件名（用于匹配元数据）
     const getFileNameFromUrl = (u: string | undefined) => {
