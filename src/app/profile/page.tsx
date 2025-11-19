@@ -76,6 +76,8 @@ export default function ProfilePage() {
   const { isAuthenticated, user, token } = useAuth()
   const [name, setName] = useState('')
   const [className, setClassName] = useState('')
+  const [manageGrade, setManageGrade] = useState('')
+  const [manageClassName, setManageClassName] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string>('')
   const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null)
@@ -98,6 +100,8 @@ export default function ProfilePage() {
           setName(u.username || u.fullName || name)
           setClassName(u.className || '')
           setPreview(u.avatarUrl || '')
+          setManageGrade(u.manageGrade || '')
+          setManageClassName(u.manageClassName || '')
         }
       } catch {}
     }
@@ -129,7 +133,7 @@ export default function ProfilePage() {
         const resp = await fetch('/api/upload/avatar', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd })
         if (resp.ok) { const data = await resp.json(); avatarUrl = data.url }
       }
-      const putResp = await fetch('/api/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ name, className, avatarUrl }) })
+      const putResp = await fetch('/api/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ name, className, avatarUrl, manageGrade, manageClassName }) })
       if (!putResp.ok) { const j = await putResp.json().catch(() => ({})); throw new Error(j.error || '保存失败') }
       setMessage('保存成功')
       setTimeout(() => {
@@ -175,21 +179,45 @@ export default function ProfilePage() {
                 className="mt-1 w-full rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-cyan-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:outline-none"
                 placeholder="请输入姓名"
               />
-            </label>
-            <label className="block">
-              <span className="text-sm text-cyan-800 dark:text-cyan-300">班级</span>
-              <div className="mt-1 flex items-center gap-3">
+          </label>
+          <label className="block">
+            <span className="text-sm text-cyan-800 dark:text-cyan-300">班级</span>
+            <div className="mt-1 flex items-center gap-3">
+              <input
+                type="text"
+                value={className}
+                onChange={(e) => setClassName(e.target.value)}
+                className="flex-1 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-cyan-100 placeholder-gray-400 dark:placeholder-gray-500 px-3 py-2 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:outline-none"
+                placeholder="如：王者班 / 星耀班 / 钻石班 / 铂金班"
+              />
+              {(() => { const tier = getClassTier(className); return tier ? <ClassIcon tier={tier} /> : null })()}
+            </div>
+          </label>
+          {(user?.role === 'teacher' || user?.role === 'admin') && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label className="block">
+                <span className="text-sm text-cyan-800 dark:text-cyan-300">管理年级</span>
                 <input
                   type="text"
-                  value={className}
-                  onChange={(e) => setClassName(e.target.value)}
-                  className="flex-1 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-cyan-100 placeholder-gray-400 dark:placeholder-gray-500 px-3 py-2 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:outline-none"
-                  placeholder="如：王者班 / 星耀班 / 钻石班 / 铂金班"
+                  value={manageGrade}
+                  onChange={(e) => setManageGrade(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-cyan-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:outline-none"
+                  placeholder="如：一年级 / 二年级 / 初一 / 高一"
                 />
-                {(() => { const tier = getClassTier(className); return tier ? <ClassIcon tier={tier} /> : null })()}
-              </div>
-            </label>
-          </div>
+              </label>
+              <label className="block">
+                <span className="text-sm text-cyan-800 dark:text-cyan-300">管理班级</span>
+                <input
+                  type="text"
+                  value={manageClassName}
+                  onChange={(e) => setManageClassName(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-cyan-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:outline-none"
+                  placeholder="如：王者班 / 星耀班 / 三班 / 一班"
+                />
+              </label>
+            </div>
+          )}
+        </div>
           <div className="space-y-3">
             <span className="text-sm text-cyan-800 dark:text-cyan-300">头像（本地上传+裁剪预览）</span>
             <input type="file" accept="image/*" onChange={onFileChange} />

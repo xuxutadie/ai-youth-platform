@@ -20,22 +20,24 @@ export async function POST(request: NextRequest) {
     }
     
     const formData = await request.formData()
-    const title = formData.get('title') as string
-    const type = formData.get('type') as string
-    const authorName = formData.get('authorName') as string
-    const grade = formData.get('grade') as string
-    const classNameFromForm = (formData.get('className') as string) || ''
+    const workId = (formData.get('workId') as string) || ''
+    const title = (formData.get('title') as string) || ''
+    const type = (formData.get('type') as string) || ''
+    const authorName = (formData.get('authorName') as string) || ''
+    const grade = (formData.get('grade') as string) || ''
+    const classNameFromForm = ((formData.get('className') as string) || '')
     const file = formData.get('file') as File
     // 验证输入
-    if (!title || !type || !authorName || !grade || !file) {
-      return NextResponse.json(
-        { error: '作品标题、类型、作者名字、年级和文件为必填项' },
-        { status: 400 }
-      )
+    if (!file) {
+      return NextResponse.json({ error: '文件为必填项' }, { status: 400 })
+    }
+    if (!workId && (!title || !type || !authorName || !grade)) {
+      return NextResponse.json({ error: '新增作品需提供标题、类型、作者名字与年级' }, { status: 400 })
     }
     // 类型、MIME 与大小校验
     const typeAllowed = ['image','video','html']
-    if (!typeAllowed.includes(type)) {
+    const effectiveType = type || (workId ? 'image' : '')
+    if (!workId && !typeAllowed.includes(effectiveType)) {
       return NextResponse.json({ error: '类型不合法' }, { status: 400 })
     }
     const mime = file.type
@@ -44,11 +46,12 @@ export async function POST(request: NextRequest) {
       video: ['video/mp4','video/webm','video/ogg'],
       html: ['text/html','application/xhtml+xml']
     } as Record<string, string[]>
-    if (!(allowedMimes[type] || []).includes(mime)) {
+    const checkType = workId ? (typeAllowed.find(t => (allowedMimes as any)[t].includes(mime)) || effectiveType) : effectiveType
+    if (!(allowedMimes[checkType] || []).includes(mime)) {
       return NextResponse.json({ error: '文件类型不支持' }, { status: 400 })
     }
     const limits = await loadUploadLimits()
-    const maxSize = type === 'video' ? limits.videoMB * 1024 * 1024 : (type === 'html' ? limits.htmlMB * 1024 * 1024 : limits.imageMB * 1024 * 1024)
+    const maxSize = checkType === 'video' ? limits.videoMB * 1024 * 1024 : (checkType === 'html' ? limits.htmlMB * 1024 * 1024 : limits.imageMB * 1024 * 1024)
     if (file.size > maxSize) {
       return NextResponse.json({ error: '文件过大' }, { status: 413 })
     }
@@ -61,7 +64,7 @@ export async function POST(request: NextRequest) {
     }
     
     // 生成唯一文件名
-    const ext = file.name.includes('.') ? file.name.substring(file.name.lastIndexOf('.') + 1) : (type === 'html' ? 'html' : 'bin')
+    const ext = file.name.includes('.') ? file.name.substring(file.name.lastIndexOf('.') + 1) : (checkType === 'html' ? 'html' : 'bin')
     const rand = crypto.randomBytes(8).toString('hex')
     const safeUserId = String((authResult as any).userId || 'unknown').replace(/[^a-zA-Z0-9_-]/g, '_')
     const fileName = `${Date.now()}_${safeUserId}_${rand}.${ext}`
@@ -81,7 +84,7 @@ export async function POST(request: NextRequest) {
     }
     
     // HTML依赖重写
-    if (type === 'html') {
+    if (checkType === 'html') {
       try {
         const content = await readFile(filePath, 'utf-8')
         const rewritten = content
@@ -95,6 +98,38 @@ export async function POST(request: NextRequest) {
     }
 
     const fileUrl = `/api/uploads/file?type=works&name=${encodeURIComponent(fileName)}`
+
+    if (workId) {
+      try {
+        await connectDB()
+        const { userId, role } = authResult as any
+        const work = await Work.findById(workId)
+        if (!work) return NextResponse.json({ error: '作品不存在' }, { status: 404 })
+        if (role === 'student' && String(work.uploaderId) !== String(userId)) {
+          return NextResponse.json({ error: '无权限编辑该作品' }, { status: 403 })
+        }
+        if (role === 'teacher') {
+          const { default: User } = await import('@/models/User')
+          const teacher = await (User as any).findById(userId).select('manageGrade manageClassName')
+          const mg = teacher?.manageGrade || ''
+          const mc = teacher?.manageClassName || ''
+          if ((mg && work.grade && mg !== work.grade) || (mc && work.className && mc !== work.className)) {
+            return NextResponse.json({ error: '该作品不在您的管理年级/班级范围内' }, { status: 403 })
+          }
+        }
+        const patch: any = { url: fileUrl, updatedAt: new Date() }
+        if (title) patch.title = title
+        const finalType = effectiveType || work.type
+        if (finalType) patch.type = finalType
+        if (authorName) patch.authorName = authorName
+        if (grade) patch.grade = grade
+        if (classNameFromForm) patch.className = classNameFromForm
+        const updated = await Work.findByIdAndUpdate(workId, patch, { new: true })
+        return NextResponse.json({ message: '作品更新成功', work: updated }, { status: 200 })
+      } catch (e) {
+        return NextResponse.json({ error: '服务器内部错误' }, { status: 500 })
+      }
+    }
 
     // 写入作品元数据，便于在无数据库时也能展示作者与班级
     try {
