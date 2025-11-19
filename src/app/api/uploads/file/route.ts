@@ -25,7 +25,10 @@ export async function GET(request: NextRequest) {
   if (!type || !uploadSubdirs[type] || !name) {
     return NextResponse.json({ error: '缺少参数' }, { status: 400 })
   }
-  const safe = name.replace(/[^a-zA-Z0-9._-]/g, '_')
+  if (name.includes('..') || /[\\/]/.test(name)) {
+    return NextResponse.json({ error: '非法文件名' }, { status: 400 })
+  }
+  const safe = name
   const roots = await listUploadRoots()
   for (const r of roots) {
     const p = join(r, uploadSubdirs[type], safe)
