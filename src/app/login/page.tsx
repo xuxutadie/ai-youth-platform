@@ -41,8 +41,10 @@ export default function LoginPage() {
       // 根据用户角色跳转到不同页面
       if (data.user.role === 'admin') {
         router.push('/admin')
+        setTimeout(() => { try { window.location.href = '/admin' } catch {} }, 50)
       } else {
         router.push('/')
+        setTimeout(() => { try { window.location.href = '/' } catch {} }, 50)
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '登录过程中发生错误')

@@ -28,6 +28,7 @@ export default function Page() {
       if (data.user?.role !== 'admin') throw new Error('非管理员账号')
       login(data.user, data.token)
       router.push('/admin')
+      setTimeout(() => { try { window.location.href = '/admin' } catch {} }, 50)
     } catch (err) {
       setError(err instanceof Error ? err.message : '登录错误')
     } finally {
