@@ -182,7 +182,17 @@ export default function MyWorksPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-cyan-700">我的作品</h1>
-          <a href="/works" className="text-cyan-700 hover:underline">查看全部作品</a>
+          <div className="flex items-center gap-3">
+            <a href="/works" className="text-cyan-700 hover:underline">查看全部作品</a>
+            <input
+              type="text"
+              placeholder="搜索作品、文件名、班级、年级..."
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              className="px-2 py-1 text-sm rounded-md border border-gray-300"
+            />
+            {term && <span className="text-sm text-gray-600">结果：{filteredWorks.length}</span>}
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 mb-6">
@@ -254,16 +264,7 @@ export default function MyWorksPage() {
                     编辑
                   </button>
                 </div>
-                <div className="ml-auto flex items-center gap-2">
-            <input
-              type="text"
-              placeholder="搜索作品、文件名、班级、年级..."
-              value={term}
-              onChange={(e) => setTerm(e.target.value)}
-              className="px-2 py-1 text-sm rounded-md border border-gray-300"
-            />
-            {term && <span className="text-sm text-gray-600">结果：{filteredWorks.length}</span>}
-          </div>
+                
         </div>
             </div>
           ))}
