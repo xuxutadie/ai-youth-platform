@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { authMiddleware } from '@/lib/auth'
 import connectDB from '@/lib/mongodb'
 import Work from '@/models/Work'
+import User from '@/models/User'
 import { join } from 'path'
 import { readdir, unlink } from 'fs/promises'
 import { existsSync } from 'fs'
@@ -124,5 +125,46 @@ export async function DELETE(request: NextRequest) {
       { error: '服务器内部错误', details: String(error?.message || error) },
       { status: 500 }
     )
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const auth = await authMiddleware(request, ['admin','teacher','student'])
+    if (auth instanceof NextResponse) return auth
+    const { userId, role } = auth as any
+
+    const url = new URL(request.url)
+    const id = url.pathname.split('/').pop()
+    if (!id) return NextResponse.json({ error: '作品ID是必填项' }, { status: 400 })
+
+    const body = await request.json().catch(() => ({}))
+    const patch: any = {}
+    ;['title','description','type','authorName','studentName','className','grade','url'].forEach((k) => {
+      if (typeof body[k] !== 'undefined') patch[k] = body[k]
+    })
+    if (Object.keys(patch).length === 0) return NextResponse.json({ error: '无可更新字段' }, { status: 400 })
+
+    await connectDB()
+    const work = await Work.findById(id)
+    if (!work) return NextResponse.json({ error: '作品不存在' }, { status: 404 })
+
+    // 权限：学生只能编辑自己的作品；教师只能编辑其管理范围内的作品；管理员可编辑全部
+    if (role === 'student' && String(work.uploaderId) !== String(userId)) {
+      return NextResponse.json({ error: '无权限编辑该作品' }, { status: 403 })
+    }
+    if (role === 'teacher') {
+      const teacher = await User.findById(userId).select('manageGrade manageClassName')
+      const mg = teacher?.manageGrade || ''
+      const mc = teacher?.manageClassName || ''
+      if ((mg && work.grade && mg !== work.grade) || (mc && work.className && mc !== work.className)) {
+        return NextResponse.json({ error: '该作品不在您的管理年级/班级范围内' }, { status: 403 })
+      }
+    }
+
+    const updated = await Work.findByIdAndUpdate(id, { ...patch, updatedAt: new Date() }, { new: true }).select('-password')
+    return NextResponse.json({ message: '更新成功', work: updated }, { status: 200 })
+  } catch (e) {
+    return NextResponse.json({ error: '服务器内部错误' }, { status: 500 })
   }
 }

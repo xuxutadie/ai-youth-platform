@@ -44,6 +44,19 @@ const UserSchema = new mongoose.Schema({
     enum: ['student', 'teacher', 'admin'],
     default: 'student'
   },
+  // 教师管理的年级与班级（教师可在个人资料中设置）
+  manageGrade: {
+    type: String,
+    trim: true,
+    maxlength: 50,
+    default: ''
+  },
+  manageClassName: {
+    type: String,
+    trim: true,
+    maxlength: 100,
+    default: ''
+  },
   createdAt: {
     type: Date,
     default: Date.now

@@ -32,12 +32,14 @@ export async function PUT(request: NextRequest) {
   const name: string = body.name ?? body.fullName ?? ''
   const className: string = body.className ?? ''
   const avatarUrl: string = body.avatarUrl ?? ''
+  const manageGrade: string = body.manageGrade ?? ''
+  const manageClassName: string = body.manageClassName ?? ''
   if (!name) return NextResponse.json({ error: '姓名为必填项' }, { status: 400 })
   try {
     await connectDB()
     const updated = await User.findByIdAndUpdate(
       (auth as any).userId,
-      { username: name, fullName: name, className, avatarUrl, updatedAt: new Date() },
+      { username: name, fullName: name, className, avatarUrl, manageGrade, manageClassName, updatedAt: new Date() },
       { new: true }
     ).select('-password')
     if (!updated) return NextResponse.json({ error: '用户不存在' }, { status: 404 })
@@ -46,7 +48,7 @@ export async function PUT(request: NextRequest) {
     console.warn('数据库更新失败，演示模式返回成功:', e)
     return NextResponse.json({
       message: '更新成功（演示模式）',
-      user: { _id: (auth as any).userId, username: name, fullName: name, className, avatarUrl }
+      user: { _id: (auth as any).userId, username: name, fullName: name, className, avatarUrl, manageGrade, manageClassName }
     }, { status: 200 })
   }
 }

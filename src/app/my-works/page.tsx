@@ -18,6 +18,8 @@ type WorkItem = {
   videoUrl?: string
   htmlUrl?: string
   url?: string
+  className?: string
+  grade?: string
 }
 
 export default function MyWorksPage() {
@@ -27,6 +29,7 @@ export default function MyWorksPage() {
   const [error, setError] = useState('')
   const router = useRouter()
   const [selectedType, setSelectedType] = useState<'all' | 'image' | 'video' | 'html'>('all')
+  const [term, setTerm] = useState('')
 
   const fetchWorks = async () => {
     if (!user?._id) return
@@ -80,8 +83,18 @@ export default function MyWorksPage() {
   }, [allWorks, user])
 
   const filteredWorks = useMemo(() => {
-    return selectedType === 'all' ? myWorks : myWorks.filter(w => w.type === selectedType)
-  }, [myWorks, selectedType])
+    const base = selectedType === 'all' ? myWorks : myWorks.filter(w => w.type === selectedType)
+    const t = term.trim().toLowerCase()
+    if (!t) return base
+    return base.filter(w => {
+      const title = (w.title || '').toLowerCase()
+      const desc = (w.description || '').toLowerCase()
+      const cls = (w.className || '').toLowerCase()
+      const grade = (w.grade || '').toLowerCase()
+      const fileName = (w.url || '').split('/').pop()?.toLowerCase() || ''
+      return title.includes(t) || desc.includes(t) || cls.includes(t) || grade.includes(t) || fileName.includes(t)
+    })
+  }, [myWorks, selectedType, term])
 
   const renderThumb = (work: WorkItem) => {
     const workUrl = work.imageUrl || work.videoUrl || work.htmlUrl || work.url || ''
@@ -184,8 +197,18 @@ export default function MyWorksPage() {
                   >
                     删除
                   </button>
-                </div>
-              </div>
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="搜索作品、文件名、班级、年级..."
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              className="px-2 py-1 text-sm rounded-md border border-gray-300"
+            />
+            {term && <span className="text-sm text-gray-600">结果：{filteredWorks.length}</span>}
+          </div>
+        </div>
             </div>
           ))}
         </div>

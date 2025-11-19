@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Work from '@/models/Work'
 import connectDB from '@/lib/mongodb'
 import { authMiddleware } from '@/lib/auth'
+import User from '@/models/User'
 import { readdir, stat, unlink, readFile } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
@@ -196,7 +197,17 @@ export async function GET(request: NextRequest) {
     }
 
     // 未指定过滤条件时，返回所有作品并合并上传目录文件
-    const dbWorksAll = await Work.find({}).sort({ createdAt: -1 })
+    // 若为教师，则按其管理的年级/班级过滤
+    let teacherFilter: any = {}
+    try {
+      const auth = await authMiddleware(request)
+      if (!(auth instanceof NextResponse) && (auth as any).role === 'teacher') {
+        const t = await User.findById((auth as any).userId).select('manageGrade manageClassName')
+        if (t?.manageGrade) teacherFilter.grade = t.manageGrade
+        if (t?.manageClassName) teacherFilter.className = t.manageClassName
+      }
+    } catch {}
+    const dbWorksAll = await Work.find(teacherFilter).sort({ createdAt: -1 })
     const enrichedDbWorksAll = dbWorksAll.map((w: any) => {
       const base = w.toObject ? w.toObject() : w
       let url = base.url || base.imageUrl || base.videoUrl || base.htmlUrl
