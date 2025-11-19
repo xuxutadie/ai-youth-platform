@@ -4,6 +4,7 @@ import crypto from 'crypto'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
+import { pickUploadTarget } from '@/lib/storage'
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,7 +22,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '文件过大' }, { status: 413 })
     }
 
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'avatars')
+    const target = await pickUploadTarget('avatars')
+    const uploadDir = target.dir
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
     }
@@ -34,7 +36,7 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer()
     await writeFile(filePath, Buffer.from(bytes))
 
-    const url = `/uploads/avatars/${fileName}`
+    const url = `/api/uploads/file?type=avatars&name=${encodeURIComponent(fileName)}`
     return NextResponse.json({ url }, { status: 201 })
   } catch (e) {
     console.error('头像上传失败:', e)

@@ -93,8 +93,7 @@ export async function POST(request: NextRequest) {
       } catch {}
     }
 
-    // 创建文件URL
-    const fileUrl = `/uploads/works/${fileName}`
+    const fileUrl = `/api/uploads/file?type=works&name=${encodeURIComponent(fileName)}`
 
     // 写入作品元数据，便于在无数据库时也能展示作者与班级
     try {

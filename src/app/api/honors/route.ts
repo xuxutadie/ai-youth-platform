@@ -28,9 +28,7 @@ async function getUploadedFiles() {
     meta = {}
   }
   
-  if (!existsSync(uploadDir)) {
-    return []
-  }
+  if (!existsSync(uploadDir)) return []
   
   try {
     // 添加超时控制
@@ -69,7 +67,7 @@ async function getUploadedFiles() {
             title: (m && m.title) || stripExt(originalName),
             studentName: (m && m.studentName) || "上传者",
             date: (m && m.date) || new Date(timestamp).toISOString().split('T')[0], // 格式化为YYYY-MM-DD
-            imageUrl: `/uploads/honors/${file}`,
+            imageUrl: `/api/uploads/file?type=honors&name=${encodeURIComponent(file)}`,
             createdAt: (m && m.createdAt) || new Date(timestamp).toISOString(),
             updatedAt: (m && m.updatedAt) || stats.mtime.toISOString()
           })

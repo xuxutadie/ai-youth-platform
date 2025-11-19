@@ -66,8 +66,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // 创建文件URL
-    const fileUrl = `/uploads/courses/${fileName}`
+    const fileUrl = `/api/uploads/file?type=courses&name=${encodeURIComponent(fileName)}`
     
     // 尝试连接数据库并保存课程信息
     try {
@@ -78,7 +77,7 @@ export async function POST(request: NextRequest) {
         title,
         description,
         imageUrl: fileUrl,
-        videoUrl: fileUrl, // 对于简化上传，我们使用相同的URL
+        videoUrl: fileUrl,
         instructor,
         duration,
         level

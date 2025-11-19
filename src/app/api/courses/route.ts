@@ -50,8 +50,8 @@ async function getUploadedFiles() {
             _id: `upload_${timestamp}`,
             title: stripExt(originalName),
     // 默认不设置描述，避免出现“上传的课程内容”等占位文字
-            imageUrl: type === 'image' ? `/uploads/courses/${file}` : '',
-            videoUrl: type === 'video' ? `/uploads/courses/${file}` : '',
+            imageUrl: type === 'image' ? `/api/uploads/file?type=courses&name=${encodeURIComponent(file)}` : '',
+            videoUrl: type === 'video' ? `/api/uploads/file?type=courses&name=${encodeURIComponent(file)}` : '',
             createdAt: new Date(timestamp).toISOString(),
             updatedAt: stats.mtime.toISOString()
           })

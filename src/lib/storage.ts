@@ -77,25 +77,52 @@ export async function getDiskUsageForPath(path: string): Promise<DiskUsage | nul
 }
 
 export async function pickUploadTarget(type: UploadType) {
-  const primaryRoot = storageConfig.primaryRoot
-  const secondaryRoot = storageConfig.secondaryRoot
-  const primaryCap = bytesFromMB(storageConfig.capPrimaryMB)
-  const secondaryCap = bytesFromMB(storageConfig.capSecondaryMB)
-
-  let useSecondary = false
-  if (primaryCap > 0) {
-    const used = await getDirSize(primaryRoot)
-    if (used >= primaryCap && secondaryRoot) useSecondary = true
+  const cfgs = await loadStorageConfigs()
+  for (const c of cfgs) {
+    const capBytes = c.maxGB > 0 ? c.maxGB * 1024 * 1024 * 1024 : 0
+    if (capBytes > 0) {
+      const used = await getDirSize(c.absPath).catch(() => 0)
+      if (used >= capBytes) continue
+    }
+    const dir = join(c.absPath, uploadSubdirs[type])
+    await ensureDir(dir)
+    return { dir, urlPrefix: `/uploads/${uploadSubdirs[type]}`, location: c.id }
   }
-  if (useSecondary && secondaryCap > 0) {
-    const used2 = await getDirSize(secondaryRoot)
-    if (used2 >= secondaryCap) useSecondary = false
-  }
-
-  const base = useSecondary && secondaryRoot ? secondaryRoot : primaryRoot
+  const base = storageConfig.primaryRoot
   const dir = join(base, uploadSubdirs[type])
   await ensureDir(dir)
-  const urlPrefix = `/uploads/${uploadSubdirs[type]}`
-  const location = useSecondary && secondaryRoot ? 'secondary' : 'primary'
-  return { dir, urlPrefix, location }
+  return { dir, urlPrefix: `/uploads/${uploadSubdirs[type]}`, location: 'primary' }
+}
+
+export type StorageConfigEntry = { id: string; absPath: string; maxGB: number; priority: number; enabled: boolean }
+
+export async function loadStorageConfigs(): Promise<StorageConfigEntry[]> {
+  try {
+    const p = join(process.cwd(), 'public', 'data', 'storage-configs.json')
+    const t = await (await import('fs/promises')).readFile(p, 'utf-8').catch(() => '[]')
+    const raw = JSON.parse(t || '[]') as any[]
+    const list = raw
+      .filter(x => x && x.enabled !== false)
+      .map(x => ({
+        id: String(x.id || 'default'),
+        absPath: String(x.path || './upload').startsWith('./upload') ? storageConfig.primaryRoot : (String(x.path).startsWith('/') || /^[a-zA-Z]:[\\\/]/.test(String(x.path)) ? String(x.path) : join(process.cwd(), String(x.path))),
+        maxGB: Number(x.maxGB || 0),
+        priority: Number(x.priority || 1),
+        enabled: x.enabled !== false
+      }))
+      .sort((a, b) => a.priority - b.priority)
+    if (!list.find(c => c.absPath === storageConfig.primaryRoot)) {
+      list.unshift({ id: 'default', absPath: storageConfig.primaryRoot, maxGB: 0, priority: 1, enabled: true })
+    }
+    return list
+  } catch {
+    return [{ id: 'default', absPath: storageConfig.primaryRoot, maxGB: 0, priority: 1, enabled: true }]
+  }
+}
+
+export async function listUploadRoots(): Promise<string[]> {
+  const cfgs = await loadStorageConfigs()
+  const roots = cfgs.map(c => c.absPath)
+  const unique = Array.from(new Set(roots))
+  return unique
 }

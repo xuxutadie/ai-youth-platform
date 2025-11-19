@@ -63,8 +63,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // 创建文件URL
-    const fileUrl = `/uploads/competitions/${fileName}`
+    const fileUrl = `/api/uploads/file?type=competitions&name=${encodeURIComponent(fileName)}`
     
     // 尝试连接数据库并保存赛事信息
     try {

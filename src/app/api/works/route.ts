@@ -72,7 +72,7 @@ async function getUploadedFiles() {
           
           const metaEntry = meta[file] || {}
           const resolvedType = metaEntry.type || type
-          const url = `/uploads/works/${file}`
+          const url = `/api/uploads/file?type=works&name=${encodeURIComponent(file)}`
           fileInfos.push({
             _id: `upload_${timestamp}`,
             title: metaEntry.title || originalNameNoExt,
@@ -111,10 +111,10 @@ export async function GET(request: NextRequest) {
       if (!u) return ''
       try {
         const idx = u.indexOf('/uploads/works/')
-        if (idx >= 0) {
-          return u.substring(idx + '/uploads/works/'.length)
-        }
-        return ''
+        if (idx >= 0) return u.substring(idx + '/uploads/works/'.length)
+        const parsed = new URL(u, 'http://localhost')
+        const qn = parsed.searchParams.get('name')
+        return qn || ''
       } catch {
         return ''
       }
@@ -152,13 +152,8 @@ export async function GET(request: NextRequest) {
           fileName = url.includes('/') ? url.substring(url.lastIndexOf('/') + 1) : url
           if (!url.startsWith('http')) {
             const cleanFileName = url.startsWith('/') ? url.substring(1) : url
-            const fullUrl = `/uploads/works/${cleanFileName}`
-            const localPath = join(process.cwd(), 'public', fullUrl)
-            if (existsSync(localPath)) {
-              url = fullUrl
-            } else {
-              url = `https://picsum.photos/seed/${fileName}/400/300`
-            }
+            const fullUrl = `/api/uploads/file?type=works&name=${encodeURIComponent(cleanFileName)}`
+            url = fullUrl
           }
         }
         const m = fileName ? meta[fileName] : undefined
@@ -197,13 +192,8 @@ export async function GET(request: NextRequest) {
         fileName = url.includes('/') ? url.substring(url.lastIndexOf('/') + 1) : url
         if (!url.startsWith('http')) {
           const cleanFileName = url.startsWith('/') ? url.substring(1) : url
-          const fullUrl = `/uploads/works/${cleanFileName}`
-          const localPath = join(process.cwd(), 'public', fullUrl)
-          if (existsSync(localPath)) {
-            url = fullUrl
-          } else {
-            url = `https://picsum.photos/seed/${fileName}/400/300`
-          }
+          const fullUrl = `/api/uploads/file?type=works&name=${encodeURIComponent(cleanFileName)}`
+          url = fullUrl
         }
       }
       const m = fileName ? meta[fileName] : undefined

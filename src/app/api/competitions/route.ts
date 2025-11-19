@@ -56,7 +56,7 @@ async function getUploadedFiles() {
             name: stripExt(originalName),
     // 默认不设置描述，避免前端出现占位文本
             date: new Date(timestamp).toISOString().split('T')[0], // 格式化为YYYY-MM-DD
-            imageUrl: `/uploads/competitions/${file}`,
+            imageUrl: `/api/uploads/file?type=competitions&name=${encodeURIComponent(file)}`,
             createdAt: new Date(timestamp).toISOString(),
             updatedAt: stats.mtime.toISOString()
           })

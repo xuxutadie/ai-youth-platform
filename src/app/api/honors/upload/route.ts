@@ -64,8 +64,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // 创建文件URL
-    const fileUrl = `/uploads/honors/${fileName}`
+    const fileUrl = `/api/uploads/file?type=honors&name=${encodeURIComponent(fileName)}`
 
     // 写入本地荣誉元数据，确保无数据库时也能展示上传标题
     try {
