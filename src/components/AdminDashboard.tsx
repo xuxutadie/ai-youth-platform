@@ -7,6 +7,9 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
+  const [term, setTerm] = useState('')
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
   const [userRole, setUserRole] = useState('')
   const [editUserId, setEditUserId] = useState<string>('')
   const [editRole, setEditRole] = useState<string>('student')
@@ -59,7 +62,9 @@ export default function AdminDashboard() {
           return
         }
         
-        const response = await fetch('/api/admin/users', {
+        const params = new URLSearchParams()
+        if (term.trim()) { params.set('q', term.trim()); params.set('all','1') } else { params.set('page', String(page)); params.set('pageSize','10') }
+        const response = await fetch(`/api/admin/users?${params.toString()}` , {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -71,7 +76,9 @@ export default function AdminDashboard() {
           throw new Error(result.error || '获取用户数据失败')
         }
         
-        setUsers(result.users || [])
+        const list = result.users || []
+        if (page === 1) setUsers(list); else setUsers(prev => [...prev, ...list])
+        setHasMore(Boolean(result.hasMore))
       } catch (error) {
         console.error('获取用户数据失败:', error)
         setMessage(error instanceof Error ? error.message : '获取用户数据失败')
@@ -82,6 +89,42 @@ export default function AdminDashboard() {
 
     fetchUsers()
   }, [userRole])
+
+  useEffect(() => {
+    if (userRole !== 'admin') return
+    setLoading(true)
+    setPage(1)
+    ;(async () => {
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) return
+        const params = new URLSearchParams()
+        if (term.trim()) { params.set('q', term.trim()); params.set('all','1') } else { params.set('page','1'); params.set('pageSize','10') }
+        const resp = await fetch(`/api/admin/users?${params.toString()}`, { headers: { Authorization: `Bearer ${token}` } })
+        const data = await resp.json()
+        if (!resp.ok) throw new Error(data.error || '加载失败')
+        setUsers(data.users || [])
+        setHasMore(Boolean(data.hasMore))
+      } catch (e: any) { setMessage(e?.message || '加载失败') } finally { setLoading(false) }
+    })()
+  }, [term])
+
+  const loadMore = async () => {
+    if (loading || !hasMore || term.trim()) return
+    const nextPage = page + 1
+    setLoading(true)
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) return
+      const params = new URLSearchParams({ page: String(nextPage), pageSize: '10' })
+      const resp = await fetch(`/api/admin/users?${params.toString()}`, { headers: { Authorization: `Bearer ${token}` } })
+      const data = await resp.json()
+      if (!resp.ok) throw new Error(data.error || '加载失败')
+      setUsers(prev => [...prev, ...(data.users || [])])
+      setHasMore(Boolean(data.hasMore))
+      setPage(nextPage)
+    } catch (e: any) { setMessage(e?.message || '加载失败') } finally { setLoading(false) }
+  }
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
@@ -204,7 +247,8 @@ export default function AdminDashboard() {
   }
 
   const AddTeacherButton = () => {
-    const candidates = users.filter(u => u.role === 'student')
+    const [pickerTerm, setPickerTerm] = useState('')
+    const candidates = users.filter(u => u.role === 'student' && (`${u.username||''} ${u.email||''}`).toLowerCase().includes(pickerTerm.toLowerCase()))
     const [targetId, setTargetId] = useState('')
     const [processing, setProcessing] = useState(false)
     const upgrade = async () => {
@@ -232,6 +276,7 @@ export default function AdminDashboard() {
     return (
       <div className="flex items-center gap-3 mb-3">
         <span className="text-sm text-gray-700 dark:text-gray-300">添加老师：</span>
+        <input value={pickerTerm} onChange={e => setPickerTerm(e.target.value)} placeholder="搜索学员" className="px-2 py-1 border rounded bg-white dark:bg-slate-900" />
         <select className="border rounded px-2 py-1 bg-white dark:bg-slate-900" value={targetId} onChange={e => setTargetId(e.target.value)}>
           <option value="">选择学员</option>
           {candidates.map(c => (
@@ -255,6 +300,9 @@ export default function AdminDashboard() {
       
         <div className="ui-card p-6 mb-6">
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">用户管理</h2>
+        <div className="flex items-center gap-3 mb-3">
+          <input value={term} onChange={e => setTerm(e.target.value)} placeholder="搜索用户名或邮箱" className="px-3 py-2 border rounded-md bg-white dark:bg-slate-900" />
+        </div>
         <AddTeacherButton />
         {loading ? (
           <div className="animate-pulse">
@@ -322,6 +370,9 @@ export default function AdminDashboard() {
                 ))}
               </tbody>
             </table>
+            <div className="flex justify-center py-3">
+              {!term && hasMore && (<button onClick={loadMore} className="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200">加载更多</button>)}
+            </div>
           </div>
         ) : (
           <p className="text-gray-700 dark:text-gray-300">暂无用户数据</p>
