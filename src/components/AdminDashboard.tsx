@@ -8,6 +8,10 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
   const [userRole, setUserRole] = useState('')
+  const [editUserId, setEditUserId] = useState<string>('')
+  const [editRole, setEditRole] = useState<string>('student')
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [savingEdit, setSavingEdit] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -107,8 +111,10 @@ export default function AdminDashboard() {
 
   // 处理编辑用户
   const handleEditUser = (userId: string) => {
-    // 这里可以实现编辑用户的逻辑，例如打开编辑模态框
-    setMessage(`编辑用户 ID: ${userId}`)
+    const u = users.find(x => x._id === userId)
+    setEditUserId(userId)
+    setEditRole(u?.role || 'student')
+    setShowEditModal(true)
   }
 
   // 处理删除用户
@@ -174,6 +180,69 @@ export default function AdminDashboard() {
     router.push(`/admin/settings/${settingType}`)
   }
 
+  const saveUserRole = async () => {
+    if (!editUserId) return
+    setSavingEdit(true)
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) { setMessage('请先登录'); return }
+      const resp = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ userId: editUserId, role: editRole })
+      })
+      const data = await resp.json()
+      if (!resp.ok) throw new Error(data.error || '更新失败')
+      setUsers(prev => prev.map(u => u._id === editUserId ? { ...u, role: data.user?.role || editRole } : u))
+      setMessage('用户角色更新成功')
+      setShowEditModal(false)
+    } catch (e) {
+      setMessage(e instanceof Error ? e.message : '更新失败')
+    } finally {
+      setSavingEdit(false)
+    }
+  }
+
+  const AddTeacherButton = () => {
+    const candidates = users.filter(u => u.role === 'student')
+    const [targetId, setTargetId] = useState('')
+    const [processing, setProcessing] = useState(false)
+    const upgrade = async () => {
+      if (!targetId) { setMessage('请选择学员'); return }
+      setProcessing(true)
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) { setMessage('请先登录'); return }
+        const resp = await fetch('/api/admin/users', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ userId: targetId, role: 'teacher' })
+        })
+        const data = await resp.json()
+        if (!resp.ok) throw new Error(data.error || '设为教师失败')
+        setUsers(prev => prev.map(u => u._id === targetId ? { ...u, role: 'teacher' } : u))
+        setMessage('已设为教师')
+        setTargetId('')
+      } catch (e) {
+        setMessage(e instanceof Error ? e.message : '设为教师失败')
+      } finally {
+        setProcessing(false)
+      }
+    }
+    return (
+      <div className="flex items-center gap-3 mb-3">
+        <span className="text-sm text-gray-700 dark:text-gray-300">添加老师：</span>
+        <select className="border rounded px-2 py-1 bg-white dark:bg-slate-900" value={targetId} onChange={e => setTargetId(e.target.value)}>
+          <option value="">选择学员</option>
+          {candidates.map(c => (
+            <option key={c._id} value={c._id}>{c.username}（{c.email}）</option>
+          ))}
+        </select>
+        <button className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50" disabled={processing} onClick={upgrade}>{processing ? '处理中...' : '设为教师'}</button>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 text-gray-900 dark:text-gray-100">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">管理员控制台</h1>
@@ -186,6 +255,7 @@ export default function AdminDashboard() {
       
         <div className="ui-card p-6 mb-6">
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">用户管理</h2>
+        <AddTeacherButton />
         {loading ? (
           <div className="animate-pulse">
             <div className="h-10 bg-gray-200 rounded mb-4"></div>
@@ -352,6 +422,32 @@ export default function AdminDashboard() {
             </div>
         </div>
       </div>
+
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-lg p-6 w-full max-w-md">
+            <div className="text-lg font-semibold mb-4">编辑用户</div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">用户ID</span>
+                <span className="text-sm text-gray-600 dark:text-gray-300">{editUserId}</span>
+              </div>
+              <label className="flex items-center gap-2">
+                <span className="text-sm">角色</span>
+                <select className="border rounded px-2 py-1 bg-white dark:bg-slate-900" value={editRole} onChange={e => setEditRole(e.target.value)}>
+                  <option value="student">学员</option>
+                  <option value="teacher">教师</option>
+                  <option value="admin">管理员</option>
+                </select>
+              </label>
+            </div>
+            <div className="mt-5 flex items-center justify-end gap-3">
+              <button className="px-3 py-1 rounded border" onClick={() => setShowEditModal(false)}>取消</button>
+              <button className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50" disabled={savingEdit} onClick={saveUserRole}>{savingEdit ? '保存中...' : '保存'}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
