@@ -234,6 +234,21 @@ export default function ContentManagement({ activeTab: initialTab = 'competition
     setEditingItem((prev: any) => ({ ...prev, [name]: value }))
   }
 
+  const handleImageUpload = async (type: 'competitions' | 'works' | 'honors' | 'courses', file: File) => {
+    try {
+      if (!token) { setError('需要登录'); return }
+      const fd = new FormData()
+      fd.set('type', type)
+      fd.set('file', file)
+      const resp = await fetch('/api/uploads/file', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd })
+      const data = await resp.json()
+      if (!resp.ok) throw new Error(data.error || '上传失败')
+      setEditingItem((prev: any) => ({ ...prev, imageUrl: data.url }))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '上传失败')
+    }
+  }
+
   if (isLoading) { return <div className="flex justify-center items-center min-h-screen">加载中...</div> }
   if (!user || !isAuthenticated) { return <div className="flex justify-center items-center min-h-screen">请先登录</div> }
 
@@ -443,8 +458,11 @@ export default function ContentManagement({ activeTab: initialTab = 'competition
                     <textarea className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 leading-tight focus:outline-none focus:shadow-outline" id="description" name="description" value={editingItem.description || ''} onChange={handleInputChange} rows={3} />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-900 dark:text-gray-100 text-sm font-bold mb-2" htmlFor="imageUrl">图片URL</label>
-                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 leading-tight focus:outline-none focus:shadow-outline" id="imageUrl" name="imageUrl" type="text" value={editingItem.imageUrl || ''} onChange={handleInputChange} required />
+                    <label className="block text-gray-900 dark:text-gray-100 text-sm font-bold mb-2" htmlFor="imageUrl">图片</label>
+                    <div className="flex items-center gap-3">
+                      <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 leading-tight focus:outline-none focus:shadow-outline" id="imageUrl" name="imageUrl" type="text" value={editingItem.imageUrl || ''} onChange={handleInputChange} placeholder="将使用本地上传自动填充" />
+                      <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload('competitions', f) }} />
+                    </div>
                   </div>
                 </>
               )}
@@ -465,8 +483,11 @@ export default function ContentManagement({ activeTab: initialTab = 'competition
                     <textarea className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 leading-tight focus:outline-none focus:shadow-outline" id="description" name="description" value={editingItem.description || ''} onChange={handleInputChange} rows={3} />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-900 dark:text-gray-100 text-sm font-bold mb-2" htmlFor="imageUrl">图片URL</label>
-                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 leading-tight focus:outline-none focus:shadow-outline" id="imageUrl" name="imageUrl" type="text" value={editingItem.imageUrl || ''} onChange={handleInputChange} required />
+                    <label className="block text-gray-900 dark:text-gray-100 text-sm font-bold mb-2" htmlFor="imageUrl">图片</label>
+                    <div className="flex items-center gap-3">
+                      <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 leading-tight focus:outline-none focus:shadow-outline" id="imageUrl" name="imageUrl" type="text" value={editingItem.imageUrl || ''} onChange={handleInputChange} placeholder="将使用本地上传自动填充" />
+                      <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload('works', f) }} />
+                    </div>
                   </div>
                 </>
               )}
@@ -491,8 +512,11 @@ export default function ContentManagement({ activeTab: initialTab = 'competition
                     <textarea className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 leading-tight focus:outline-none focus:shadow-outline" id="description" name="description" value={editingItem.description || ''} onChange={handleInputChange} rows={3} />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-900 dark:text-gray-100 text-sm font-bold mb-2" htmlFor="imageUrl">图片URL</label>
-                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 leading-tight focus:outline-none focus:shadow-outline" id="imageUrl" name="imageUrl" type="text" value={editingItem.imageUrl || ''} onChange={handleInputChange} required />
+                    <label className="block text-gray-900 dark:text-gray-100 text-sm font-bold mb-2" htmlFor="imageUrl">图片</label>
+                    <div className="flex items-center gap-3">
+                      <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 leading-tight focus:outline-none focus:shadow-outline" id="imageUrl" name="imageUrl" type="text" value={editingItem.imageUrl || ''} onChange={handleInputChange} placeholder="将使用本地上传自动填充" />
+                      <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload('honors', f) }} />
+                    </div>
                   </div>
                 </>
               )}
@@ -521,8 +545,11 @@ export default function ContentManagement({ activeTab: initialTab = 'competition
                     <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 leading-tight focus:outline-none focus:shadow-outline" id="level" name="level" type="text" value={editingItem.level || ''} onChange={handleInputChange} required />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-900 dark:text-gray-100 text-sm font-bold mb-2" htmlFor="imageUrl">图片URL</label>
-                    <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 leading-tight focus:outline-none focus:shadow-outline" id="imageUrl" name="imageUrl" type="text" value={editingItem.imageUrl || ''} onChange={handleInputChange} required />
+                    <label className="block text-gray-900 dark:text-gray-100 text-sm font-bold mb-2" htmlFor="imageUrl">图片</label>
+                    <div className="flex items-center gap-3">
+                      <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 leading-tight focus:outline-none focus:shadow-outline" id="imageUrl" name="imageUrl" type="text" value={editingItem.imageUrl || ''} onChange={handleInputChange} placeholder="将使用本地上传自动填充" />
+                      <input type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload('courses', f) }} />
+                    </div>
                   </div>
                 </>
               )}

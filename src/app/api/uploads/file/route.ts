@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { join } from 'path'
 import { existsSync } from 'fs'
-import { readFile } from 'fs/promises'
-import { listUploadRoots } from '@/lib/storage'
+import { readFile, writeFile, mkdir } from 'fs/promises'
+import { listUploadRoots, pickUploadTarget, loadUploadLimits } from '@/lib/storage'
 import { uploadSubdirs } from '@/config/storage'
+import { authMiddleware } from '@/lib/auth'
 
 function contentType(name: string) {
   const ext = name.toLowerCase().split('.').pop() || ''
@@ -38,4 +39,39 @@ export async function GET(request: NextRequest) {
     }
   }
   return NextResponse.json({ error: '未找到文件' }, { status: 404 })
+}
+
+export async function POST(request: NextRequest) {
+  const auth = await authMiddleware(request, ['teacher','admin'])
+  if ('json' in auth) return auth
+  try {
+    const formData = await request.formData()
+    const type = formData.get('type') as keyof typeof uploadSubdirs | null
+    const file = formData.get('file') as File | null
+    if (!type || !uploadSubdirs[type] || !file) {
+      return NextResponse.json({ error: '缺少类型或文件' }, { status: 400 })
+    }
+    const allowed = ['image/jpeg','image/png','image/webp','image/gif']
+    if (!allowed.includes(file.type)) {
+      return NextResponse.json({ error: '文件类型不支持' }, { status: 400 })
+    }
+    const limits = await loadUploadLimits()
+    const maxSize = limits.imageMB * 1024 * 1024
+    if (file.size > maxSize) {
+      return NextResponse.json({ error: '文件过大' }, { status: 413 })
+    }
+    const target = await pickUploadTarget(type)
+    if (!existsSync(target.dir)) await mkdir(target.dir, { recursive: true })
+    const ts = Date.now()
+    const originalName = file.name.replace(/[^a-zA-Z0-9\u4e00-\u9fa5.]/g, '_')
+    const safeName = `${ts}_${originalName}`
+    const p = join(target.dir, safeName)
+    const buf = Buffer.from(await file.arrayBuffer())
+    await writeFile(p, buf)
+    const url = `/api/uploads/file?type=${encodeURIComponent(type)}&name=${encodeURIComponent(safeName)}`
+    return NextResponse.json({ ok: true, name: safeName, url })
+  } catch (e) {
+    console.error('上传图片失败', e)
+    return NextResponse.json({ error: '上传失败' }, { status: 500 })
+  }
 }
