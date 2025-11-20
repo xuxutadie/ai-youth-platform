@@ -51,6 +51,7 @@ export default function ContentManagement({ activeTab: initialTab = 'competition
   const [dataIsLoading, setDataIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [editingItem, setEditingItem] = useState<any>(null)
+  const [originalEditingItem, setOriginalEditingItem] = useState<any>(null)
   const [showEditModal, setShowEditModal] = useState(false)
   const [abortController, setAbortController] = useState<AbortController | null>(null)
 
@@ -136,6 +137,7 @@ export default function ContentManagement({ activeTab: initialTab = 'competition
   }
 
   const handleEdit = (item: any) => {
+    setOriginalEditingItem(item)
     setEditingItem(item)
     setShowEditModal(true)
   }
@@ -195,10 +197,23 @@ export default function ContentManagement({ activeTab: initialTab = 'competition
         case 'courses': endpoint = '/api/courses'; break
       }
 
+      let body: any = editingItem
+      if (activeTab === 'competitions') {
+        const id = originalEditingItem?._id || editingItem?._id
+        if (!id) { setError('缺少赛事ID'); return }
+        const keys = ['name','date','imageUrl','description'] as const
+        const diff: Record<string, any> = { id }
+        for (const k of keys) {
+          if (editingItem?.[k] !== originalEditingItem?.[k]) diff[k] = editingItem?.[k]
+        }
+        if (Object.keys(diff).length === 1) { setError('未更改任何字段'); return }
+        body = diff
+      }
+
       const response = await fetch(endpoint, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(editingItem)
+        body: JSON.stringify(body)
       })
 
       if (!response.ok) {
