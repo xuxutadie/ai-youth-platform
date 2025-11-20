@@ -181,10 +181,10 @@ export async function GET(request: NextRequest) {
         const m = fileName ? meta[fileName] : undefined
         return {
           ...base,
-          title: (m && m.title) || base.title || stripExt(fileName),
-          authorName: (m && m.authorName) || base.authorName,
-          className: (m && m.className) || base.className,
-          grade: (m && m.grade) || base.grade,
+          title: base.title || (m && m.title) || stripExt(fileName),
+          authorName: base.authorName || (m && m.authorName),
+          className: base.className || (m && m.className),
+          grade: base.grade || (m && m.grade),
           url: url || `https://picsum.photos/seed/${base._id}/400/300`,
         }
       })
@@ -242,13 +242,13 @@ export async function GET(request: NextRequest) {
         }
       }
       const m = fileName ? meta[fileName] : undefined
-      const resolvedType = (m && m.type) || base.type
+      const resolvedType = base.type || (m && m.type)
       return {
         ...base,
-        title: (m && m.title) || base.title || stripExt(fileName),
-        authorName: (m && m.authorName) || base.authorName,
-        className: (m && m.className) || base.className,
-        grade: (m && m.grade) || base.grade,
+        title: base.title || (m && m.title) || stripExt(fileName),
+        authorName: base.authorName || (m && m.authorName),
+        className: base.className || (m && m.className),
+        grade: base.grade || (m && m.grade),
         url: url || `https://picsum.photos/seed/${base._id}/400/300`,
       }
     })
