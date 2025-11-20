@@ -198,17 +198,27 @@ export default function ContentManagement({ activeTab: initialTab = 'competition
       }
 
       let body: any = editingItem
-      if (activeTab === 'competitions') {
-        const id = originalEditingItem?._id || editingItem?._id
-        if (!id) { setError('缺少赛事ID'); return }
-        const keys = ['name','date','imageUrl','description'] as const
-        const diff: Record<string, any> = { id }
-        for (const k of keys) {
-          if (editingItem?.[k] !== originalEditingItem?.[k]) diff[k] = editingItem?.[k]
-        }
-        if (Object.keys(diff).length === 1) { setError('未更改任何字段'); return }
-        body = diff
+      const id = originalEditingItem?._id || editingItem?._id
+      if (!id) {
+        setError(`缺少${activeTab === 'competitions' ? '赛事' : activeTab === 'works' ? '作品' : activeTab === 'honors' ? '荣誉' : '课程'}ID`)
+        return
       }
+      const diff: Record<string, any> = { id }
+      if (activeTab === 'competitions') {
+        const keys = ['name','date','imageUrl','description'] as const
+        for (const k of keys) { if (editingItem?.[k] !== originalEditingItem?.[k]) diff[k] = editingItem?.[k] }
+      } else if (activeTab === 'works') {
+        const keys = ['title','type','description','studentName','imageUrl','videoUrl','htmlUrl','authorName','className','grade'] as const
+        for (const k of keys) { if (editingItem?.[k] !== originalEditingItem?.[k]) diff[k] = editingItem?.[k] }
+      } else if (activeTab === 'honors') {
+        const keys = ['title','studentName','imageUrl','date','description'] as const
+        for (const k of keys) { if (editingItem?.[k] !== originalEditingItem?.[k]) diff[k] = editingItem?.[k] }
+      } else if (activeTab === 'courses') {
+        const keys = ['title','description','imageUrl','instructor','duration','level','videoUrl'] as const
+        for (const k of keys) { if (editingItem?.[k] !== originalEditingItem?.[k]) diff[k] = editingItem?.[k] }
+      }
+      if (Object.keys(diff).length === 1) { setError('未更改任何字段'); return }
+      body = diff
 
       const response = await fetch(endpoint, {
         method: 'PUT',

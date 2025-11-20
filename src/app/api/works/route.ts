@@ -95,7 +95,15 @@ async function getUploadedFiles() {
       }
     }
     
-    return fileInfos.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    // 合并覆盖信息
+    let overrides: Record<string, any> = {}
+    try {
+      const ovPath = join(process.cwd(), 'public', 'data', 'works-overrides.json')
+      const t = await readFile(ovPath, 'utf-8').catch(() => '{}')
+      overrides = JSON.parse(t || '{}')
+    } catch { overrides = {} }
+    const merged = fileInfos.map((u: any) => ({ ...u, ...(overrides[u._id] || {}) }))
+    return merged.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   } catch (error) {
     console.error('读取上传目录错误:', error)
     return []
@@ -375,35 +383,36 @@ export async function PUT(request: NextRequest) {
       return authResult
     }
 
-    const { id, title, type, description, studentName } = await request.json()
+    const payload = await request.json()
+    const id = payload?.id
+    if (!id) return NextResponse.json({ error: '缺少作品ID' }, { status: 400 })
+    const allowedKeys = ['title','type','description','studentName','imageUrl','videoUrl','htmlUrl','authorName','className','grade'] as const
+    const updates: Record<string, any> = {}
+    for (const k of allowedKeys) {
+      if (payload[k] !== undefined && payload[k] !== null) updates[k] = payload[k]
+    }
+    if (Object.keys(updates).length === 0) return NextResponse.json({ error: '没有可更新的字段' }, { status: 400 })
 
-    if (!id) {
-      return NextResponse.json(
-        { error: '作品ID是必填项' },
-        { status: 400 }
-      )
+    // 覆盖本地上传条目
+    if (String(id).startsWith('upload_')) {
+      try {
+        const fs = await import('fs/promises')
+        const p = join(process.cwd(), 'public', 'data', 'works-overrides.json')
+        let current: Record<string, any> = {}
+        try { current = JSON.parse(await fs.readFile(p, 'utf-8')) } catch { current = {} }
+        current[id] = { ...(current[id] || {}), ...updates, updatedAt: new Date().toISOString() }
+        await fs.writeFile(p, JSON.stringify(current, null, 2), 'utf-8')
+        return NextResponse.json({ message: '作品更新成功', work: { _id: id, ...(current[id]) } }, { status: 200 })
+      } catch (e) {
+        console.error('写入作品覆盖失败', e)
+        return NextResponse.json({ error: '更新失败' }, { status: 500 })
+      }
     }
 
     await connectDB()
-
-    // 查找并更新作品
-    const updatedWork = await Work.findByIdAndUpdate(
-      id,
-      { title, type, description, studentName },
-      { new: true, runValidators: true }
-    )
-
-    if (!updatedWork) {
-      return NextResponse.json(
-        { error: '作品不存在' },
-        { status: 404 }
-      )
-    }
-
-    return NextResponse.json(
-      { message: '作品更新成功', work: updatedWork },
-      { status: 200 }
-    )
+    const updatedWork = await Work.findByIdAndUpdate(id, { $set: { ...updates, updatedAt: new Date() } }, { new: true, runValidators: true })
+    if (!updatedWork) return NextResponse.json({ error: '作品不存在' }, { status: 404 })
+    return NextResponse.json({ message: '作品更新成功', work: updatedWork }, { status: 200 })
   } catch (error) {
     console.error('更新作品错误:', error)
     

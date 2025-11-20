@@ -89,7 +89,18 @@ export async function GET() {
   try {
     await connectDB()
     const honors = await Honor.find({}).sort({ createdAt: -1 })
-    return NextResponse.json({ honors }, { status: 200 })
+    const uploadedFiles = await getUploadedFiles()
+    // 合并覆盖信息
+    let overrides: Record<string, any> = {}
+    try {
+      const fs = await import('fs/promises')
+      const p = join(process.cwd(), 'public', 'data', 'honors-overrides.json')
+      const t = await fs.readFile(p, 'utf-8').catch(() => '{}')
+      overrides = JSON.parse(t || '{}')
+    } catch { overrides = {} }
+    const mergedUploads = uploadedFiles.map(u => ({ ...u, ...(overrides[u._id] || {}) }))
+    const allHonors = [...honors, ...mergedUploads]
+    return NextResponse.json({ honors: allHonors }, { status: 200 })
   } catch (error) {
     console.error('获取荣誉错误:', error)
     // 数据库连接失败时，尝试从上传目录读取文件作为备用
@@ -195,24 +206,37 @@ export async function PUT(request: NextRequest) {
       return authResult
     }
     
-    const { id, title, studentName, imageUrl, date, description } = await request.json()
-    
-    // 验证输入
-    if (!id || !title || !studentName || !imageUrl || !date) {
-      return NextResponse.json(
-        { error: '荣誉ID、标题、学生姓名、图片和获奖时间为必填项' },
-        { status: 400 }
-      )
-    }
+    const payload = await request.json()
+    const id = payload?.id
+    if (!id) return NextResponse.json({ error: '缺少荣誉ID' }, { status: 400 })
+    const allowedKeys = ['title','studentName','imageUrl','date','description'] as const
+    const updates: Record<string, any> = {}
+    for (const k of allowedKeys) { if (payload[k] !== undefined && payload[k] !== null) updates[k] = payload[k] }
+    if (Object.keys(updates).length === 0) return NextResponse.json({ error: '没有可更新的字段' }, { status: 400 })
     
     // 尝试连接数据库
+    // upload_* 覆盖
+    if (String(id).startsWith('upload_')) {
+      try {
+        const fs = await import('fs/promises')
+        const p = join(process.cwd(), 'public', 'data', 'honors-overrides.json')
+        let current: Record<string, any> = {}
+        try { current = JSON.parse(await fs.readFile(p, 'utf-8')) } catch { current = {} }
+        current[id] = { ...(current[id] || {}), ...updates, updatedAt: new Date().toISOString() }
+        await fs.writeFile(p, JSON.stringify(current, null, 2), 'utf-8')
+        return NextResponse.json({ message: '荣誉更新成功', honor: { _id: id, ...(current[id]) } }, { status: 200 })
+      } catch (e) {
+        console.error('写入荣誉覆盖失败', e)
+        return NextResponse.json({ error: '更新失败' }, { status: 500 })
+      }
+    }
+
     try {
       await connectDB()
       
-      // 更新荣誉
       const updatedHonor = await Honor.findByIdAndUpdate(
         id,
-        { title, studentName, imageUrl, date, description },
+        { $set: { ...updates, updatedAt: new Date() } },
         { new: true }
       )
       

@@ -73,8 +73,19 @@ export async function GET() {
     await connectDB()
     const courses = await Course.find({}).sort({ createdAt: -1 })
     const uploadedFiles = await getUploadedFiles()
-    const allCourses = [...courses, ...uploadedFiles]
-    return NextResponse.json({ courses: allCourses }, { status: 200 })
+    // 读取覆盖
+    try {
+      const fs = await import('fs/promises')
+      const p = join(process.cwd(), 'public', 'data', 'courses-overrides.json')
+      const t = await fs.readFile(p, 'utf-8').catch(() => '{}')
+      const overrides = JSON.parse(t || '{}')
+      const mergedUploads = uploadedFiles.map(u => ({ ...u, ...(overrides[u._id] || {}) }))
+      const allCourses = [...courses, ...mergedUploads]
+      return NextResponse.json({ courses: allCourses }, { status: 200 })
+    } catch {
+      const allCourses = [...courses, ...uploadedFiles]
+      return NextResponse.json({ courses: allCourses }, { status: 200 })
+    }
   } catch (error) {
     console.error('获取课程错误:', error)
     try {
@@ -121,18 +132,31 @@ export async function PUT(request: NextRequest) {
   try {
     const authResult = await authMiddleware(request, ['admin'])
     if (authResult instanceof NextResponse) return authResult
-    const { id, title, description, imageUrl, instructor, duration, level } = await request.json()
-    if (!id || !title || !description || !imageUrl || !instructor || !duration || !level) {
-      return NextResponse.json({ error: '课程ID、标题、描述、图片、讲师、时长和级别为必填项' }, { status: 400 })
-    }
+    const payload = await request.json()
+    const id = payload?.id
+    if (!id) return NextResponse.json({ error: '缺少课程ID' }, { status: 400 })
+    const allowedKeys = ['title','description','imageUrl','instructor','duration','level','videoUrl'] as const
+    const updates: Record<string, any> = {}
+    for (const k of allowedKeys) { if (payload[k] !== undefined && payload[k] !== null) updates[k] = payload[k] }
+    if (Object.keys(updates).length === 0) return NextResponse.json({ error: '没有可更新的字段' }, { status: 400 })
     try {
+      // 覆盖 upload_* 条目
+      if (String(id).startsWith('upload_')) {
+        const fs = await import('fs/promises')
+        const p = join(process.cwd(), 'public', 'data', 'courses-overrides.json')
+        let current: Record<string, any> = {}
+        try { current = JSON.parse(await fs.readFile(p, 'utf-8')) } catch { current = {} }
+        current[id] = { ...(current[id] || {}), ...updates, updatedAt: new Date().toISOString() }
+        await fs.writeFile(p, JSON.stringify(current, null, 2), 'utf-8')
+        return NextResponse.json({ message: '课程更新成功', course: { _id: id, ...(current[id]) } }, { status: 200 })
+      }
       await connectDB()
-      const updatedCourse = await Course.findByIdAndUpdate(id, { title, description, imageUrl, instructor, duration, level }, { new: true })
+      const updatedCourse = await Course.findByIdAndUpdate(id, { $set: { ...updates, updatedAt: new Date() } }, { new: true })
       if (!updatedCourse) return NextResponse.json({ error: '课程不存在' }, { status: 404 })
       return NextResponse.json({ message: '课程更新成功', course: updatedCourse }, { status: 200 })
     } catch (dbError) {
       if (dbError instanceof Error && (dbError.message.includes('ECONNREFUSED') || dbError.message.includes('MongoNetworkError') || dbError.message.includes('connect ECONNREFUSED') || dbError.message.includes('MongooseServerSelectionError') || dbError.name === 'MongooseServerSelectionError')) {
-        const mockCourse = { _id: id, title, description, imageUrl, instructor, duration, level, updatedAt: new Date().toISOString() }
+        const mockCourse = { _id: id, ...updates, updatedAt: new Date().toISOString() }
         return NextResponse.json({ message: '课程更新成功（演示模式）', course: mockCourse }, { status: 200 })
       }
       throw dbError
