@@ -16,34 +16,21 @@ export default function Sidebar({ collapsed, onToggleCollapse }: { collapsed?: b
   const router = useRouter()
   const [localSearchTerm, setLocalSearchTerm] = useState('')
 
-  // 初始化主题：优先 localStorage，其次系统偏好
+  // 强制启用暗色主题
   useEffect(() => {
     try {
-      const stored = typeof window !== 'undefined' ? localStorage.getItem('theme') : null
-      const prefersDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-      const shouldDark = stored ? stored === 'dark' : prefersDark
       const root = document.documentElement
-      if (shouldDark) {
-        root.classList.add('dark')
-        setIsDark(true)
-      } else {
-        root.classList.remove('dark')
-        setIsDark(false)
-      }
+      root.classList.add('dark')
+      localStorage.setItem('theme', 'dark')
+      setIsDark(true)
     } catch {}
   }, [])
 
   const toggleTheme = () => {
     const root = document.documentElement
-    const next = !isDark
-    if (next) {
-      root.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
-    } else {
-      root.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
-    }
-    setIsDark(next)
+    root.classList.add('dark')
+    localStorage.setItem('theme', 'dark')
+    setIsDark(true)
   }
 
   const linkClass = (href: string) => {
@@ -64,37 +51,20 @@ export default function Sidebar({ collapsed, onToggleCollapse }: { collapsed?: b
   return (
     <>
       {/* 移动端顶部栏（替代原顶栏） */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 backdrop-blur-xl border-b border-cyan-200/30 dark:border-cyan-700/40 shadow-sm">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-400/20 via-teal-400/16 to-sky-500/14 dark:from-cyan-500/15 dark:via-teal-500/12 dark:to-sky-600/12" />
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 backdrop-blur-xl border-b border-[#0D001A] shadow-sm bg-[#0D001A] dark:bg-[#0D001A]">
         <div className="px-4 py-3 flex items-center justify-between">
           <Link href="/" className="flex items-center">
             <LogoImage
-              src={process.env.NEXT_PUBLIC_LOGO_URL || "/logo.svg"}
+              src={process.env.NEXT_PUBLIC_LOGO_URL || "/logo.png"}
               alt="青少年人工智能"
-              className="h-14 md:h-20 w-auto max-w-full"
+              className="w-[120px] md:w-[140px] max-h-[28px] md:max-h-[32px] h-auto object-contain shrink-0"
               fallbackSrc="/logo.svg"
               focus="none"
+              width={1099}
+              height={233}
             />
           </Link>
           <div className="flex items-center gap-3">
-            <button
-              aria-label={isDark ? '切换为浅色' : '切换为深色'}
-              onClick={toggleTheme}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-cyan-200/60 dark:border-cyan-700/40 text-cyan-800 dark:text-cyan-200"
-            >
-              {isDark ? (
-                // 太阳图标（浅色）
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                  <path d="M12 4.5a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75A.75.75 0 0112 4.5zM6.22 6.22a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06zM4.5 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 014.5 12zm2.25 5.25a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06zM12 18.75a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75a.75.75 0 01-.75-.75zm5.25-1.5a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06zM18.75 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm-1.5-5.25a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06z" />
-                  <circle cx="12" cy="12" r="4" />
-                </svg>
-              ) : (
-                // 月亮图标（深色）
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                  <path d="M21.752 15.002A9.718 9.718 0 0112 21.75 9.75 9.75 0 1112 2.25c.546 0 1.084.045 1.607.133a.75.75 0 01.286 1.373 7.5 7.5 0 009.227 9.227.75.75 0 011.373.286 9.72 9.72 0 01-2.741 1.733z" />
-                </svg>
-              )}
-            </button>
             <button
               onClick={() => setIsMenuOpen(true)}
               className="text-cyan-800 dark:text-cyan-300"
@@ -112,15 +82,17 @@ export default function Sidebar({ collapsed, onToggleCollapse }: { collapsed?: b
       {isMenuOpen && (
         <div className="md:hidden fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/40" onClick={() => setIsMenuOpen(false)} />
-          <div className="absolute top-0 left-0 h-full w-72 bg-cyan-50/95 dark:bg-[#40E0D0]/70 backdrop-blur-md shadow-xl border-r border-cyan-200/60 dark:border-[#40E0D0]/50 p-4 flex flex-col">
+          <div className="absolute top-0 left-0 h-full w-72 bg-[#0D001A] backdrop-blur-md shadow-xl p-4 flex flex-col rounded-r-2xl overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <Link href="/" className="flex items-center" onClick={() => setIsMenuOpen(false)}>
               <LogoImage
-                src={process.env.NEXT_PUBLIC_LOGO_URL || "/logo.svg"}
+                src={process.env.NEXT_PUBLIC_LOGO_URL || "/logo.png"}
                 alt="青少年人工智能"
-                className="h-12 md:h-14 w-auto max-w-full shrink-0"
+                className="w-[110px] md:w-[120px] max-h-[24px] md:max-h-[26px] h-auto object-contain shrink-0"
                 fallbackSrc="/logo.svg"
                 focus="none"
+                width={1099}
+                height={233}
               />
             </Link>
               <button onClick={() => setIsMenuOpen(false)} aria-label="关闭菜单" className="text-cyan-800 dark:text-cyan-200">
@@ -167,8 +139,7 @@ export default function Sidebar({ collapsed, onToggleCollapse }: { collapsed?: b
       )}
 
       {/* 桌面端侧边栏（固定定位，随页面滚动） */}
-      <aside className={`hidden md:flex md:flex-col md:w-[172px] md:h-screen md:fixed md:left-0 md:top-0 md:z-30 md:overflow-y-auto md:overflow-x-hidden relative backdrop-blur-xl border-r-2 border-cyan-300/50 dark:border-cyan-500/50 shadow-sm ${collapsed ? 'md:hidden' : ''}`}>
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-cyan-400/20 via-teal-400/16 to-sky-500/14 dark:from-cyan-500/15 dark:via-teal-500/12 dark:to-sky-600/12" />
+      <aside className={`hidden md:flex md:flex-col md:w-[172px] md:h-screen md:fixed md:left-0 md:top-0 md:z-30 md:overflow-y-auto md:overflow-x-hidden relative backdrop-blur-xl shadow-sm bg-[#0D001A] rounded-r-xl overflow-hidden ${collapsed ? 'md:hidden' : ''}`}>
         <div className={`px-3 py-6 ${collapsed ? 'hidden' : ''}`}>
           <Link href="/" className="flex items-center justify-center">
             <div className="flex items-center justify-center min-w-0 w-full">
@@ -249,27 +220,6 @@ export default function Sidebar({ collapsed, onToggleCollapse }: { collapsed?: b
         </nav>
 
       <div className={`mt-auto px-4 py-6 border-t-2 border-cyan-200/60 dark:border-cyan-700/40 ${collapsed ? 'hidden' : ''}`}>
-          <div className="flex items-center justify-center gap-2 text-center">
-            <span className="text-xs text-cyan-800/80 dark:text-cyan-300/80">主题</span>
-            <button
-              aria-label={isDark ? '切换为浅色' : '切换为深色'}
-              onClick={toggleTheme}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-md border border-cyan-200/60 dark:border-cyan-700/40 text-cyan-800 dark:text-cyan-200 hover:bg-cyan-100/60 dark:hover:bg-slate-800 transition-colors"
-              title={isDark ? '浅色模式' : '深色模式'}
-            >
-              {isDark ? (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                  <path d="M12 4.5a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75A.75.75 0 0112 4.5zM6.22 6.22a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06zM4.5 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 014.5 12zm2.25 5.25a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06zM12 18.75a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75a.75.75 0 01-.75-.75zm5.25-1.5a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06zM18.75 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm-1.5-5.25a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06z" />
-                  <circle cx="12" cy="12" r="4" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                  <path d="M21.752 15.002A9.718 9.718 0 0112 21.75 9.75 9.75 0 1112 2.25c.546 0 1.084.045 1.607.133a.75.75 0 01.286 1.373 7.5 7.5 0 009.227 9.227.75.75 0 011.373.286 9.72 9.72 0 01-2.741 1.733z" />
-                </svg>
-              )}
-            </button>
-          </div>
-
           {/* 登录状态区域 */}
           {isAuthenticated ? (
             <div className="mt-4 relative flex justify-center">

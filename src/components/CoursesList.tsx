@@ -155,17 +155,17 @@ export default function CoursesList() {
                   <div className="ui-shine-bar group-hover:translate-x-[120%] duration-700" />
                 </div>
               </div>
-              <div className="p-4">
-                <h3 className="ui-card-title mb-2 leading-tight">
-                  <span className="bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">{course.title}</span>
+              <div className="p-5 space-y-2 min-h-[120px] bg-[#12C99D] text-[#FFEA00]">
+                <h3 className="ui-card-title mb-1 leading-tight">
+                  <span className="text-[#FFEA00]">{course.title}</span>
                 </h3>
-                <p className="ui-card-subtle mb-4 line-clamp-2 leading-relaxed">{course.description}</p>
+                <p className="mb-2 line-clamp-2 leading-relaxed text-[#FFEA00]">{course.description}</p>
                 {(course.imageUrl || course.videoUrl) && (
                   <a 
                     href={course.videoUrl || course.imageUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-md shadow-sm hover:bg-blue-700 transition-colors"
+                    className="inline-flex items-center gap-2 bg-white text-[#FFEA00] px-3 py-2 rounded-md shadow-sm hover:bg-gray-100 transition-colors"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {getViewButtonText(course.videoUrl || course.imageUrl)}

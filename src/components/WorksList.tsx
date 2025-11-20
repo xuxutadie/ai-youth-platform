@@ -160,8 +160,8 @@ export default function WorksList() {
             className={
               'px-3 py-1 rounded-full border transition-colors ' +
               (selectedType === opt.key
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50')
+                ? 'border-[#00BCD4] text-[#00BCD4] bg-[#00BCD4]/20'
+                : 'border-[#00BCD4] text-[#00BCD4] bg-transparent hover:bg-[#00BCD4]/10')
             }
           >
             {opt.label}
@@ -173,36 +173,36 @@ export default function WorksList() {
             placeholder="搜索作品、作者、文件名..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-2 py-1 text-sm rounded-md border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-slate-900/60"
+            className="px-2 py-1 text-sm rounded-md border border-[#00BCD4] text-[#00BCD4] placeholder-[#00BCD4] bg-transparent dark:bg-transparent"
           />
           {term && (
-            <span className="text-sm text-gray-600 dark:text-gray-400">当前搜索：{searchTerm}（{filteredWorks.length} 项）</span>
+            <span className="text-sm text-[#00BCD4]">当前搜索：{searchTerm}（{filteredWorks.length} 项）</span>
           )}
         </div>
       </div>
       {filteredWorks.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {filteredWorks.map((work, index) => (
-            <div key={index} className="group ui-card">
+            <div key={index} className="group ui-card border-[#00BCD4]">
               {renderWorkContent(work)}
-              <div className="p-4">
+              <div className="p-3 space-y-1 min-h-[60px] bg-[#00BCD4] text-white">
                 <h3 className="ui-card-title mb-2 line-clamp-1 min-h-[1.75rem]">
-                  <span className="bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">{work.title}</span>
+                  <span className="text-white">{work.title}</span>
                 </h3>
-                <p className="ui-card-subtle mb-2">
-                  作者: <span className="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent font-bold">{work.authorName || work.studentName || '未知'}</span> · 年级: <span className="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent font-bold">{work.grade || '未填写'}</span> · 班级: <span className="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent font-bold">{work.className || '未填写'}</span>
+                <p className="mb-1 text-sm text-white">
+                  作者: <span className="font-bold">{work.authorName || work.studentName || '未知'}</span> · 年级: <span className="font-bold">{work.grade || '未填写'}</span> · 班级: <span className="font-bold">{work.className || '未填写'}</span>
                 </p>
-                <p className="ui-card-muted mb-2">
+                <p className="mb-1 text-sm text-white">
                   类型: {work.type === 'image' ? '图片' : work.type === 'video' ? '视频' : '网页'}
                 </p>
-                <p className="ui-card-muted mb-2">
+                <p className="mb-1 text-sm text-white">
                   上传时间: {new Date(work.createdAt).toLocaleDateString()}
                 </p>
                 <a 
                   href={work.url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="inline-block bg-blue-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-blue-700 transition-colors"
+                  className="inline-block bg-blue-600 text-white px-3 py-1 text-sm rounded-md shadow-sm hover:bg-blue-700 transition-colors"
                 >
                   查看作品
                 </a>

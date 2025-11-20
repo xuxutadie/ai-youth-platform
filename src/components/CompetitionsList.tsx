@@ -49,18 +49,18 @@ export default function CompetitionsList() {
                 )}
                 <div className="ui-shine"><div className="ui-shine-bar group-hover:translate-x-[120%] duration-700" /></div>
               </div>
-              <div className="p-4">
+              <div className="p-4 bg-[#d242ff] text-white">
                 <h3 className="ui-card-title mb-2">
-                  <span className="bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">
+                  <span className="text-white">
                     {competition.name}
                   </span>
                 </h3>
-                <p className="ui-card-subtle mb-2">
-                  <span className="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
+                <p className="ui-card-subtle mb-2 text-white">
+                  <span>
                     举办时间: {competition.date}
                   </span>
                 </p>
-                <p className="ui-card-muted">
+                <p className="ui-card-muted text-white">
                   {competition.description || '暂无描述'}
                 </p>
               </div>

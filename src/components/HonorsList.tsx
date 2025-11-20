@@ -64,17 +64,17 @@ export default function HonorsList() {
                 )}
                 <div className="ui-shine"><div className="ui-shine-bar group-hover:translate-x-[120%] duration-700" /></div>
               </div>
-              <div className="p-4">
-                <h3 className="ui-card-title mb-2">
-                  <span className="bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">{honor.title}</span>
+              <div className="p-5 space-y-2 min-h-[120px] bg-[#F5A623] text-white">
+                <h3 className="ui-card-title mb-1">
+                  <span className="text-white">{honor.title}</span>
                 </h3>
-                <p className="ui-card-subtle mb-2">
+                <p className="mb-1 text-sm">
                   <span className="mr-1">获奖人:</span>
-                  <span className="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent font-medium">{honor.studentName}</span>
-                  <span className="mx-1 text-gray-400">· 年级:</span>
-                  <span className="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">{(honor as any).className || (honor as any).grade || '未填写'}</span>
+                  <span className="text-white font-medium">{honor.studentName}</span>
+                  <span className="mx-1 text-white">· 年级:</span>
+                  <span className="text-white">{(honor as any).className || (honor as any).grade || '未填写'}</span>
                 </p>
-                <p className="ui-card-muted mb-2">获奖时间: {honor.date}</p>
+                <p className="mb-1 text-sm text-white">获奖时间: {honor.date}</p>
               </div>
               <div className="ui-card-footer-line" />
             </div>

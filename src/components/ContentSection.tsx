@@ -163,12 +163,32 @@ export default function ContentSection({ title, type, limit = 3 }: ContentSectio
   return (
     <div className="mb-12 max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight">
+        <h2 className={
+          type === 'competitions'
+            ? 'text-2xl md:text-3xl font-bold text-[#d242ff] leading-tight'
+            : type === 'works'
+            ? 'text-2xl md:text-3xl font-bold text-[#00BCD4] leading-tight'
+            : type === 'honors'
+            ? 'text-2xl md:text-3xl font-bold text-[#F5A623] leading-tight'
+            : type === 'courses'
+            ? 'text-2xl md:text-3xl font-bold text-[#12C99D] leading-tight'
+            : 'text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent leading-tight'
+        }>
           {title}
         </h2>
         <a
           href={`/${type}`}
-          className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:underline"
+          className={
+            type === 'competitions'
+              ? 'inline-flex items-center gap-1 text-[#d242ff] hover:underline'
+              : type === 'works'
+              ? 'inline-flex items-center gap-1 text-[#00BCD4] hover:underline'
+              : type === 'honors'
+              ? 'inline-flex items-center gap-1 text-[#F5A623] hover:underline'
+              : type === 'courses'
+              ? 'inline-flex items-center gap-1 text-[#12C99D] hover:underline'
+              : 'inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:underline'
+          }
         >
           查看更多 {getTypeName()}
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -245,30 +265,40 @@ export default function ContentSection({ title, type, limit = 3 }: ContentSectio
                   <div className="ui-shine-bar group-hover:translate-x-[120%] duration-700" />
                 </div>
               </div>
-              <div className="p-5 space-y-2 min-h-[120px]">
+              <div className={
+                type === 'competitions'
+                  ? 'p-5 space-y-2 min-h-[120px] bg-[#d242ff] text-white'
+                  : type === 'works'
+                  ? 'p-5 space-y-2 min-h-[120px] bg-[#00BCD4] text-white'
+                  : type === 'honors'
+                  ? 'p-5 space-y-2 min-h-[120px] bg-[#F5A623] text-white'
+                  : type === 'courses'
+                  ? 'p-5 space-y-2 min-h-[120px] bg-[#12C99D] text-white'
+                  : 'p-5 space-y-2 min-h-[120px]'
+              }>
                 <h3 className="text-lg font-semibold mb-1 leading-tight line-clamp-1">
-                  <span className="bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">{item.title || item.name}</span>
+                  <span className="text-white">{item.title || item.name}</span>
                 </h3>
                 {/* 作品类型：显示作者与班级（带回退） */}
                 {type === 'works' && (
                   <>
                     <div className="flex items-center space-x-1">
-                      <span className="text-gray-600 dark:text-gray-300 text-xs">作者:</span>
-                      <span className="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent text-sm font-medium">{item.authorName || item.studentName || '未知'}</span>
+                      <span className="text-white text-xs">作者:</span>
+                      <span className="text-white text-sm font-medium">{item.authorName || item.studentName || '未知'}</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <span className="text-gray-600 dark:text-gray-300 text-xs">年级:</span>
-                      <span className="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent text-sm">{item.className || '未填写'}</span>
+                      <span className="text-white text-xs">年级:</span>
+                      <span className="text-white text-sm">{item.className || '未填写'}</span>
                     </div>
                   </>
                 )}
                 {/* 荣誉类型：显示获奖人与年级（蓝绿色渐变） */}
                 {type === 'honors' && item.studentName && (
                   <div className="flex items-center space-x-1">
-                    <span className="text-gray-600 dark:text-gray-300 text-xs">获奖人:</span>
-                    <span className="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent text-sm font-medium">{item.studentName}</span>
-                    <span className="text-gray-400 dark:text-gray-400 text-xs">· 年级:</span>
-                    <span className="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent text-sm">{item.className || item.grade || '未填写'}</span>
+                    <span className="text-white text-xs">获奖人:</span>
+                    <span className="text-white text-sm font-medium">{item.studentName}</span>
+                    <span className="text-white text-xs">· 年级:</span>
+                    <span className="text-white text-sm">{item.className || item.grade || '未填写'}</span>
                   </div>
                 )}
                 {/* 移除日期与描述显示，避免多余文字 */}

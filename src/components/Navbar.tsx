@@ -14,34 +14,21 @@ export default function Navbar() {
   const [isDark, setIsDark] = useState(false)
   const router = useRouter()
 
-  // 初始化主题：优先 localStorage，其次系统偏好
+  // 强制启用暗色主题
   useEffect(() => {
     try {
-      const stored = typeof window !== 'undefined' ? localStorage.getItem('theme') : null
-      const prefersDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-      const shouldDark = stored ? stored === 'dark' : prefersDark
       const root = document.documentElement
-      if (shouldDark) {
-        root.classList.add('dark')
-        setIsDark(true)
-      } else {
-        root.classList.remove('dark')
-        setIsDark(false)
-      }
+      root.classList.add('dark')
+      localStorage.setItem('theme', 'dark')
+      setIsDark(true)
     } catch {}
   }, [])
 
   const toggleTheme = () => {
     const root = document.documentElement
-    const next = !isDark
-    if (next) {
-      root.classList.add('dark')
-      localStorage.setItem('theme', 'dark')
-    } else {
-      root.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
-    }
-    setIsDark(next)
+    root.classList.add('dark')
+    localStorage.setItem('theme', 'dark')
+    setIsDark(true)
   }
 
   const linkClass = (href: string) => {
@@ -69,11 +56,13 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <LogoImage
-                src={process.env.NEXT_PUBLIC_LOGO_URL || "/logo.svg"}
+                src={process.env.NEXT_PUBLIC_LOGO_URL || "/logo.png"}
                 alt="青少年人工智能"
-                className="h-12 md:h-14 w-auto shrink-0"
+                className="w-[110px] md:w-[120px] max-h-[24px] md:max-h-[26px] h-auto object-contain shrink-0"
                 fallbackSrc="/logo.svg"
                 focus="none"
+                width={1099}
+                height={233}
               />
             </Link>
           </div>
@@ -109,26 +98,7 @@ export default function Navbar() {
           
           {/* 桌面端：根据登录状态显示不同内容 */}
           <div className="hidden md:flex items-center space-x-4">
-            {/* 暗色模式切换 */}
-            <button
-              aria-label={isDark ? '切换为浅色' : '切换为深色'}
-              onClick={toggleTheme}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-md border border-cyan-200/60 dark:border-cyan-700/40 text-cyan-800 dark:text-cyan-200 hover:bg-cyan-100/60 dark:hover:bg-slate-800 transition-colors"
-              title={isDark ? '浅色模式' : '深色模式'}
-            >
-              {isDark ? (
-                // 太阳图标（浅色）
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                  <path d="M12 4.5a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75A.75.75 0 0112 4.5zM6.22 6.22a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06zM4.5 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 014.5 12zm2.25 5.25a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06zM12 18.75a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75a.75.75 0 01-.75-.75zm5.25-1.5a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06zM18.75 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm-1.5-5.25a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06z" />
-                  <circle cx="12" cy="12" r="4" />
-                </svg>
-              ) : (
-                // 月亮图标（深色）
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                  <path d="M21.752 15.002A9.718 9.718 0 0112 21.75 9.75 9.75 0 1112 2.25c.546 0 1.084.045 1.607.133a.75.75 0 01.286 1.373 7.5 7.5 0 009.227 9.227.75.75 0 011.373.286 9.72 9.72 0 01-2.741 1.733z" />
-                </svg>
-              )}
-            </button>
+            {/* 暗色固定：移除切换按钮 */}
             {isAuthenticated ? (
               // 已登录：显示用户头像和下拉菜单
               <div className="relative">
@@ -210,23 +180,7 @@ export default function Navbar() {
           </div>
           
           <div className="md:hidden flex items-center gap-2">
-            {/* 移动端暗色切换 */}
-            <button
-              aria-label={isDark ? '切换为浅色' : '切换为深色'}
-              onClick={toggleTheme}
-              className="text-cyan-800 dark:text-cyan-300 hover:text-cyan-900 focus:outline-none"
-            >
-              {isDark ? (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                  <path d="M12 4.5a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75A.75.75 0 0112 4.5zM6.22 6.22a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06zM4.5 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 014.5 12zm2.25 5.25a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06zM12 18.75a.75.75 0 01.75-.75h.75a.75.75 0 010 1.5h-.75a.75.75 0 01-.75-.75zm5.25-1.5a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06zM18.75 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm-1.5-5.25a.75.75 0 011.06 0l.53.53a.75.75 0 11-1.06 1.06l-.53-.53a.75.75 0 010-1.06z" />
-                  <circle cx="12" cy="12" r="4" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                  <path d="M21.752 15.002A9.718 9.718 0 0112 21.75 9.75 9.75 0 1112 2.25c.546 0 1.084.045 1.607.133a.75.75 0 01.286 1.373 7.5 7.5 0 009.227 9.227.75.75 0 011.373.286 9.72 9.72 0 01-2.741 1.733z" />
-                </svg>
-              )}
-            </button>
+            {/* 暗色固定：移除移动端切换按钮 */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-cyan-800 dark:text-cyan-300 hover:text-cyan-900 focus:outline-none"

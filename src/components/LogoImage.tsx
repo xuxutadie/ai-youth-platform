@@ -9,9 +9,11 @@ type Props = {
   fallbackSrc?: string
   // 裁剪关注模式；none 表示不裁剪
   focus?: 'none' | 'auto' | 'top' | 'left' | 'topLeft' | 'center'
+  width?: number
+  height?: number
 }
 
-export default function LogoImage({ src, alt = '青少年人工智能', className, fallbackSrc = '/logo.svg', focus = 'topLeft' }: Props) {
+export default function LogoImage({ src, alt = '青少年人工智能', className, fallbackSrc = '/logo.svg', focus = 'topLeft', width, height }: Props) {
   const [displaySrc, setDisplaySrc] = useState<string>(src || fallbackSrc)
 
   useEffect(() => {
@@ -119,6 +121,9 @@ export default function LogoImage({ src, alt = '青少年人工智能', classNam
       src={displaySrc}
       alt={alt}
       className={className}
+      width={width}
+      height={height}
+      style={{ aspectRatio: width && height ? `${width}/${height}` : undefined }}
       onError={(e) => {
         e.currentTarget.onerror = null
         e.currentTarget.src = fallbackSrc

@@ -219,7 +219,7 @@ export default function UploadButton({ type, className }: UploadButtonProps) {
 
       {showForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
-  <div className={`upload-modal  bg-cyan-50 dark:bg-slate-900/90 border border-gray-200 dark:border-slate-700 rounded-lg shadow-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto`}>
+  <div className={`upload-modal bg-white dark:bg-white border border-gray-800 dark:border-gray-800 rounded-lg shadow-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto`}>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold text-gray-900">上传{config.title}</h3>
               <button
@@ -237,7 +237,7 @@ export default function UploadButton({ type, className }: UploadButtonProps) {
                 const isImageOrUrlField = field.name === 'imageUrl' || field.name === 'url'
                 return (
                   <div key={field.name}>
-                    <label htmlFor={field.name} className="block text-sm font-semibold text-gray-800 dark:text-gray-100 mb-1">
+                    <label htmlFor={field.name} className="block text-sm font-semibold text-gray-900 mb-1">
                       {field.label}
                     </label>
                     {isImageOrUrlField ? (
@@ -287,7 +287,7 @@ export default function UploadButton({ type, className }: UploadButtonProps) {
                           id={field.name}
                           name={field.name}
                           type={(field as any).type || 'text'}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-white text-black placeholder-gray-800 font-medium"
+                          className="w-full px-3 py-2 border border-gray-800 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-black placeholder-gray-700 font-semibold"
                           placeholder={field.placeholder}
                           value={formData[field.name] || ''}
                           onChange={handleInputChange}
