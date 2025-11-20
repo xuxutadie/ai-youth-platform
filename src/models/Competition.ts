@@ -11,6 +11,12 @@ const CompetitionSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  description: {
+    type: String,
+    required: false,
+    trim: true,
+    maxlength: 500
+  },
   imageUrl: {
     type: String,
     required: true

@@ -233,24 +233,27 @@ export async function PUT(request: NextRequest) {
       return authResult
     }
     
-    const { id, name, date, imageUrl, description } = await request.json()
-    
-    // 验证输入
-    if (!id || !name || !date || !imageUrl) {
-      return NextResponse.json(
-        { error: '赛事ID、名称、日期和图片为必填项' },
-        { status: 400 }
-      )
+    const payload = await request.json()
+    const id = payload?.id
+    if (!id) {
+      return NextResponse.json({ error: '缺少赛事ID' }, { status: 400 })
+    }
+    const allowedKeys = ['name','date','imageUrl','description'] as const
+    const updates: Record<string, any> = {}
+    for (const k of allowedKeys) {
+      if (payload[k] !== undefined && payload[k] !== null) updates[k] = payload[k]
+    }
+    if (Object.keys(updates).length === 0) {
+      return NextResponse.json({ error: '没有可更新的字段' }, { status: 400 })
     }
     
     // 尝试连接数据库
     try {
       await connectDB()
       
-      // 更新赛事
       const updatedCompetition = await Competition.findByIdAndUpdate(
         id,
-        { name, date, imageUrl, description },
+        { $set: { ...updates, updatedAt: new Date() } },
         { new: true }
       )
       
@@ -275,14 +278,7 @@ export async function PUT(request: NextRequest) {
         dbError.name === 'MongooseServerSelectionError'
       )) {
         // 创建模拟更新响应
-        const mockCompetition = {
-          _id: id,
-          name,
-          date,
-          imageUrl,
-          description,
-          updatedAt: new Date().toISOString()
-        }
+        const mockCompetition = { _id: id, ...updates, updatedAt: new Date().toISOString() }
         
         return NextResponse.json(
           { message: '赛事更新成功（演示模式）', competition: mockCompetition },
