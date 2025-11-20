@@ -84,8 +84,16 @@ export async function GET() {
     // 获取上传的文件
     const uploadedFiles = await getUploadedFiles()
     
-    // 合并数据库赛事和上传文件
-    const allCompetitions = [...competitions, ...uploadedFiles]
+    // 读取覆盖信息并合并到上传文件
+    let overrides: Record<string, any> = {}
+    try {
+      const fs = await import('fs/promises')
+      const p = join(process.cwd(), 'public', 'data', 'competitions-overrides.json')
+      const t = await fs.readFile(p, 'utf-8').catch(() => '{}')
+      overrides = JSON.parse(t || '{}')
+    } catch {}
+    const mergedUploads = uploadedFiles.map(u => ({ ...u, ...(overrides[u._id] || {}) }))
+    const allCompetitions = [...competitions, ...mergedUploads]
     
     return NextResponse.json(
       { competitions: allCompetitions },
@@ -247,6 +255,22 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: '没有可更新的字段' }, { status: 400 })
     }
     
+    // 如果是本地上传生成的条目，写入覆盖文件而非数据库
+    if (String(id).startsWith('upload_')) {
+      try {
+        const fs = await import('fs/promises')
+        const p = join(process.cwd(), 'public', 'data', 'competitions-overrides.json')
+        let current: Record<string, any> = {}
+        try { current = JSON.parse(await fs.readFile(p, 'utf-8')) } catch { current = {} }
+        current[id] = { ...(current[id] || {}), ...updates, updatedAt: new Date().toISOString() }
+        await fs.writeFile(p, JSON.stringify(current, null, 2), 'utf-8')
+        return NextResponse.json({ message: '赛事更新成功', competition: { _id: id, ...(current[id]) } }, { status: 200 })
+      } catch (e) {
+        console.error('写入覆盖信息失败', e)
+        return NextResponse.json({ error: '更新失败' }, { status: 500 })
+      }
+    }
+
     // 尝试连接数据库
     try {
       await connectDB()

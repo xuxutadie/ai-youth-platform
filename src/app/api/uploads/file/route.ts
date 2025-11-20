@@ -42,8 +42,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await authMiddleware(request, ['teacher','admin'])
-  if ('json' in auth) return auth
+  const authResult = await authMiddleware(request, ['teacher','admin'])
+  if (authResult instanceof NextResponse) {
+    return authResult
+  }
   try {
     const formData = await request.formData()
     const type = formData.get('type') as keyof typeof uploadSubdirs | null
