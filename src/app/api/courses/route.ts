@@ -80,7 +80,8 @@ export async function GET() {
       const t = await fs.readFile(p, 'utf-8').catch(() => '{}')
       const overrides = JSON.parse(t || '{}')
       const mergedUploads = uploadedFiles.map(u => ({ ...u, ...(overrides[u._id] || {}) }))
-      const allCourses = [...courses, ...mergedUploads]
+      const mergedDb = courses.map((c: any) => ({ ...(c.toObject ? c.toObject() : c), ...(overrides[c._id?.toString?.() || c._id] || {}) }))
+      const allCourses = [...mergedDb, ...mergedUploads]
       return NextResponse.json({ courses: allCourses }, { status: 200 })
     } catch {
       const allCourses = [...courses, ...uploadedFiles]

@@ -99,7 +99,8 @@ export async function GET() {
       overrides = JSON.parse(t || '{}')
     } catch { overrides = {} }
     const mergedUploads = uploadedFiles.map(u => ({ ...u, ...(overrides[u._id] || {}) }))
-    const allHonors = [...honors, ...mergedUploads]
+    const mergedDb = honors.map((h: any) => ({ ...(h.toObject ? h.toObject() : h), ...(overrides[h._id?.toString?.() || h._id] || {}) }))
+    const allHonors = [...mergedDb, ...mergedUploads]
     return NextResponse.json({ honors: allHonors }, { status: 200 })
   } catch (error) {
     console.error('获取荣誉错误:', error)
@@ -260,11 +261,25 @@ export async function PUT(request: NextRequest) {
         dbError.message.includes('MongooseServerSelectionError') ||
         dbError.name === 'MongooseServerSelectionError'
       )) {
-        const mockHonor = { _id: id, ...updates, updatedAt: new Date().toISOString() }
-        return NextResponse.json(
-          { message: '荣誉更新成功（演示模式）', honor: mockHonor },
-          { status: 200 }
-        )
+        try {
+          const fs = await import('fs/promises')
+          const p = join(process.cwd(), 'public', 'data', 'honors-overrides.json')
+          let current: Record<string, any> = {}
+          try { current = JSON.parse(await fs.readFile(p, 'utf-8')) } catch { current = {} }
+          current[id] = { ...(current[id] || {}), ...updates, updatedAt: new Date().toISOString() }
+          await fs.writeFile(p, JSON.stringify(current, null, 2), 'utf-8')
+          return NextResponse.json(
+            { message: '荣誉更新成功（离线持久化）', honor: { _id: id, ...(current[id]) } },
+            { status: 200 }
+          )
+        } catch (e) {
+          console.error('离线写入荣誉覆盖失败', e)
+          const mockHonor = { _id: id, ...updates, updatedAt: new Date().toISOString() }
+          return NextResponse.json(
+            { message: '荣誉更新成功（演示模式）', honor: mockHonor },
+            { status: 200 }
+          )
+        }
       }
       
       // 其他数据库错误，重新抛出

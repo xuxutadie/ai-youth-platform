@@ -110,7 +110,7 @@ async function getUploadedFiles() {
   }
 }
 
-export async function GET(request: NextRequest) {
+  export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const uploaderId = searchParams.get('uploaderId')
@@ -131,17 +131,23 @@ export async function GET(request: NextRequest) {
 
     await connectDB()
 
-    // 预读元数据映射，优先使用其中的作者与班级信息
+    // 预读元数据映射，优先用于补全缺失信息；同时读入覆盖信息（管理员编辑的本地持久化）
     const dataDir = join(process.cwd(), 'public', 'data')
     const metaFile = join(dataDir, 'works-meta.json')
+    const overridesFile = join(dataDir, 'works-overrides.json')
     let meta: Record<string, any> = {}
+    let overrides: Record<string, any> = {}
     try {
       if (existsSync(metaFile)) {
         const content = await readFile(metaFile, 'utf-8')
         meta = content ? JSON.parse(content) : {}
       }
+      if (existsSync(overridesFile)) {
+        const content2 = await readFile(overridesFile, 'utf-8')
+        overrides = content2 ? JSON.parse(content2) : {}
+      }
     } catch {
-      meta = {}
+      meta = {}; overrides = {}
     }
 
     // 去除扩展名的工具函数
@@ -179,6 +185,7 @@ export async function GET(request: NextRequest) {
           }
         }
         const m = fileName ? meta[fileName] : undefined
+        const ov = overrides[base._id?.toString?.() || base._id] || {}
         return {
           ...base,
           title: base.title || (m && m.title) || stripExt(fileName),
@@ -186,6 +193,7 @@ export async function GET(request: NextRequest) {
           className: base.className || (m && m.className),
           grade: base.grade || (m && m.grade),
           url: url || `https://picsum.photos/seed/${base._id}/400/300`,
+          ...ov
         }
       })
 
@@ -243,6 +251,7 @@ export async function GET(request: NextRequest) {
       }
       const m = fileName ? meta[fileName] : undefined
       const resolvedType = base.type || (m && m.type)
+      const ov = overrides[base._id?.toString?.() || base._id] || {}
       return {
         ...base,
         title: base.title || (m && m.title) || stripExt(fileName),
@@ -250,6 +259,7 @@ export async function GET(request: NextRequest) {
         className: base.className || (m && m.className),
         grade: base.grade || (m && m.grade),
         url: url || `https://picsum.photos/seed/${base._id}/400/300`,
+        ...ov
       }
     })
 
@@ -409,10 +419,26 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    await connectDB()
-    const updatedWork = await Work.findByIdAndUpdate(id, { $set: { ...updates, updatedAt: new Date() } }, { new: true, runValidators: true })
-    if (!updatedWork) return NextResponse.json({ error: '作品不存在' }, { status: 404 })
-    return NextResponse.json({ message: '作品更新成功', work: updatedWork }, { status: 200 })
+    try {
+      await connectDB()
+      const updatedWork = await Work.findByIdAndUpdate(id, { $set: { ...updates, updatedAt: new Date() } }, { new: true, runValidators: true })
+      if (!updatedWork) return NextResponse.json({ error: '作品不存在' }, { status: 404 })
+      return NextResponse.json({ message: '作品更新成功', work: updatedWork }, { status: 200 })
+    } catch (dbError) {
+      // 数据库不可用时，写入本地覆盖并返回成功
+      try {
+        const fs = await import('fs/promises')
+        const p = join(process.cwd(), 'public', 'data', 'works-overrides.json')
+        let current: Record<string, any> = {}
+        try { current = JSON.parse(await fs.readFile(p, 'utf-8')) } catch { current = {} }
+        current[id] = { ...(current[id] || {}), ...updates, updatedAt: new Date().toISOString() }
+        await fs.writeFile(p, JSON.stringify(current, null, 2), 'utf-8')
+        return NextResponse.json({ message: '作品更新成功（离线持久化）', work: { _id: id, ...(current[id]) } }, { status: 200 })
+      } catch (e) {
+        console.error('离线写入作品覆盖失败', e)
+        throw dbError
+      }
+    }
   } catch (error) {
     console.error('更新作品错误:', error)
     
