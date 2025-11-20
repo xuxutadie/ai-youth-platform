@@ -2,6 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  input,
+  textarea,
+  select {
+    @apply text-gray-900 placeholder-gray-700;
+    color: #0f172a;
+    border-color: #334155;
+    caret-color: #0f172a;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #374151;
+    opacity: 1;
+  }
+
+  .dark input,
+  .dark textarea,
+  .dark select {
+    color: #e5e7eb;
+    background-color: #0f172a;
+    border-color: #475569;
+    caret-color: #e5e7eb;
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #cbd5e1;
+    opacity: 1;
+  }
+}
+
 @layer components {
   .ui-card {
     @apply relative rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-slate-900/70 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-lg transform hover:-translate-y-0.5 will-change-transform;
