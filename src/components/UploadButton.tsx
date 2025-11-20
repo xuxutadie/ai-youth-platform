@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Image from 'next/image'
 import useAuth from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 
@@ -257,7 +258,9 @@ export default function UploadButton({ type, className }: UploadButtonProps) {
                           <div className="mt-2">
                             {file &&
                               (file.type.startsWith('image/') ? (
-                                <img src={preview} alt="预览" className="w-full h-40 object-contain bg-white dark:bg-slate-800 rounded" />
+                                <div className="relative w-full h-40">
+                                  <Image src={preview} alt="预览" fill sizes="100vw" className="object-contain bg-white dark:bg-slate-800 rounded" unoptimized />
+                                </div>
                               ) : file.type.startsWith('video/') ? (
                                 <video src={preview} controls className="w-full h-40 rounded bg-white dark:bg-slate-800" />
                               ) : (
@@ -318,7 +321,9 @@ export default function UploadButton({ type, className }: UploadButtonProps) {
                   {file && (
                     <div className="mt-2">
                       {file.type.startsWith('image/') ? (
-                        <img src={preview} alt="预览" className="w-full h-40 object-contain bg-white dark:bg-slate-800 rounded" />
+                        <div className="relative w-full h-40">
+                          <Image src={preview} alt="预览" fill sizes="100vw" className="object-contain bg-white dark:bg-slate-800 rounded" unoptimized />
+                        </div>
                       ) : file.type.startsWith('video/') ? (
                         <video src={preview} controls className="w-full h-40 rounded bg-white dark:bg-slate-800" />
                       ) : null}

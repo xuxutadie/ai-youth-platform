@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { join } from 'path'
 import { existsSync } from 'fs'
-import { readFile, writeFile, mkdir } from 'fs/promises'
+import { readFile, writeFile, mkdir, stat } from 'fs/promises'
 import { listUploadRoots, pickUploadTarget, loadUploadLimits } from '@/lib/storage'
 import { uploadSubdirs } from '@/config/storage'
 import { authMiddleware } from '@/lib/auth'
@@ -34,8 +34,34 @@ export async function GET(request: NextRequest) {
   for (const r of roots) {
     const p = join(r, uploadSubdirs[type], safe)
     if (existsSync(p)) {
+      const fileStat = await stat(p)
+      const lastModified = new Date(fileStat.mtimeMs).toUTCString()
+      const etag = `W/"${fileStat.size}-${Math.floor(fileStat.mtimeMs)}"`
+      const ifNoneMatch = request.headers.get('if-none-match') || ''
+      const ifModifiedSince = request.headers.get('if-modified-since') || ''
+
+      if (ifNoneMatch === etag || (ifModifiedSince && new Date(ifModifiedSince).getTime() >= fileStat.mtimeMs)) {
+        return new NextResponse(null, {
+          status: 304,
+          headers: {
+            'ETag': etag,
+            'Last-Modified': lastModified,
+            'Cache-Control': 'public, max-age=604800, must-revalidate'
+          }
+        })
+      }
+
       const buf = await readFile(p)
-      return new NextResponse(buf, { status: 200, headers: { 'Content-Type': contentType(safe) } })
+      return new NextResponse(buf, {
+        status: 200,
+        headers: {
+          'Content-Type': contentType(safe),
+          'Content-Length': String(buf.length),
+          'ETag': etag,
+          'Last-Modified': lastModified,
+          'Cache-Control': 'public, max-age=604800, must-revalidate'
+        }
+      })
     }
   }
   return NextResponse.json({ error: '未找到文件' }, { status: 404 })

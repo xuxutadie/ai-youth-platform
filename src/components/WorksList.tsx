@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import VideoPoster from '@/components/VideoPoster'
 import useWorkSearchStore from '@/stores/useWorkSearchStore'
 import useWorks from '@/hooks/useWorks'
@@ -52,21 +53,24 @@ export default function WorksList() {
               </div>
             </div>
           ) : (
-            <img
-              src={workUrl}
-              alt={work.title}
-              className="w-full h-full object-contain bg-gray-800 cursor-pointer"
-              loading="lazy"
-              onClick={() => window.open(workUrl, '_blank')}
-              onError={() => setFailedMap((m) => ({ ...m, [work._id]: true }))}
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={workUrl}
+                alt={work.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-contain bg-gray-800 cursor-pointer"
+                onClick={() => window.open(workUrl, '_blank')}
+                onError={() => setFailedMap((m) => ({ ...m, [work._id]: true }))}
+              />
+            </div>
           )}
           <div className="ui-shine"><div className="ui-shine-bar group-hover:translate-x-[120%] duration-700" /></div>
         </div>
       )
     } else if (work.type === 'video') {
       return (
-        <div className="ui-card-header flex items-center justify-center">
+        <div className="ui-card-header flex items-center justify-center relative">
           <div className="relative w-full h-full" onClick={() => window.open(workUrl, '_blank')}>
             <VideoPoster
               src={workUrl}

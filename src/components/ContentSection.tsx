@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import { apiGet } from '@/lib/api'
 
 interface ContentSectionProps {
@@ -220,7 +221,7 @@ export default function ContentSection({ title, type, limit = 3 }: ContentSectio
             className="group ui-card block"
               aria-label={`查看${getTypeName()}：${item.title || item.name}`}
             >
-              <div className="ui-card-header">
+              <div className="ui-card-header relative">
                 {(() => {
                   const url: string | undefined = item?.url
                   const imgSrc: string | undefined = item?.imageUrl || (url && (() => {
@@ -240,11 +241,12 @@ export default function ContentSection({ title, type, limit = 3 }: ContentSectio
 
                   if (imgSrc) {
                     return (
-                      <img
+                      <Image
                         src={imgSrc}
                         alt={item.title || item.name}
-                        className="w-full h-full object-contain bg-gray-800 transition-transform duration-500 group-hover:scale-105"
-                        loading="lazy"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-contain bg-gray-800 transition-transform duration-500 group-hover:scale-105"
                       />
                     )
                   }

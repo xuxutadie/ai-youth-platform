@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 
 interface CarouselImage {
   url: string
@@ -68,20 +69,19 @@ export default function HeroSection() {
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {carouselImages.map((image, index) => (
-          <div 
-            key={index} 
+          <div
+            key={index}
             className="min-w-full relative h-[500px] cursor-pointer"
             onClick={() => handleImageClick(image.link)}
           >
-            <img 
-                src={image.url} 
-                alt={image.alt} 
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  // 如果图片加载失败，使用默认图片
-                  (e.target as HTMLImageElement).src = 'https://picsum.photos/1200/600?fallback'
-                }}
-              />
+            <Image
+              src={image.url}
+              alt={image.alt}
+              fill
+              priority={index === 0}
+              sizes="100vw"
+              className="object-cover"
+            />
             <a href={image.link} className="absolute inset-0 flex items-end justify-center pb-10 group">
                 <div className="bg-transparent text-white font-bold py-3 px-8 rounded-full ring-2 ring-white/80 hover:ring-white transition-colors opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   立即查看

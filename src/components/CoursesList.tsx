@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 
 function VideoThumbnail({ src, alt }: { src: string, alt: string }) {
   const [thumb, setThumb] = useState<string>('')
@@ -73,7 +74,11 @@ function VideoThumbnail({ src, alt }: { src: string, alt: string }) {
       </div>
     )
   }
-  return <img src={thumb} alt={alt} className="w-full h-full object-contain bg-gray-800" />
+  return (
+    <div className="relative w-full h-full">
+      <Image src={thumb} alt={alt} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-contain bg-gray-800" unoptimized />
+    </div>
+  )
 }
 
 export default function CoursesList() {
@@ -108,7 +113,11 @@ export default function CoursesList() {
     if (course.imageUrl) {
       const fileType = getFileType(course.imageUrl)
       if (fileType === 'image') {
-        return <img src={course.imageUrl} alt={course.title} className="w-full h-full object-contain bg-gray-800" />
+        return (
+          <div className="relative w-full h-full">
+            <Image src={course.imageUrl} alt={course.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-contain bg-gray-800" />
+          </div>
+        )
       }
     }
     if (course.videoUrl) {
@@ -148,7 +157,7 @@ export default function CoursesList() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {courses.map((course) => (
         <a key={course._id || course.title} href={`/courses/${course._id}`} className="group ui-card block">
-              <div className="ui-card-header">
+              <div className="ui-card-header relative">
                 {renderContentPreview(course)}
                 {/* 图片闪光动效条 */}
                 <div className="ui-shine">

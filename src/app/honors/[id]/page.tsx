@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 
 interface Item {
   _id?: string
@@ -70,7 +71,9 @@ export default function HonorDetail({ params }: { params: { id: string } }) {
         <span className="bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">{item.title || item.name}</span>
       </h1>
       {item.imageUrl ? (
-        <img src={item.imageUrl} alt={item.title || item.name || ''} className="w-full max-h-[480px] object-contain bg-white rounded" />
+        <div className="relative w-full h-[480px] max-h-[480px]">
+          <Image src={item.imageUrl} alt={item.title || item.name || ''} fill sizes="100vw" className="object-contain bg-white rounded" />
+        </div>
       ) : item.videoUrl ? (
         <video src={item.videoUrl} controls className="w-full rounded" />
       ) : null}

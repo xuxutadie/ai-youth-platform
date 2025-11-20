@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 
 interface Item {
   _id?: string
@@ -83,7 +84,11 @@ export default function WorkDetail({ params }: { params: { id: string } }) {
         )
         if (!url) return null
         if (type === 'image') {
-          return <img src={url} alt={item.title || item.name || ''} className="w-full max-h-[480px] object-contain bg-white rounded" />
+          return (
+            <div className="relative w-full h-[480px] max-h-[480px]">
+              <Image src={url} alt={item.title || item.name || ''} fill sizes="100vw" className="object-contain bg-white rounded" />
+            </div>
+          )
         }
         if (type === 'video') {
           return <video src={url} controls className="w-full rounded" />

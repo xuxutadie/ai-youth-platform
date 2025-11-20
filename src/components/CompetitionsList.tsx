@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 
 export default function CompetitionsList() {
   const [competitions, setCompetitions] = useState<any[]>([])
@@ -38,13 +39,15 @@ export default function CompetitionsList() {
       ) : competitions.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {competitions.map((competition, index) => (
-  <div key={index} className="group ui-card">
-              <div className="ui-card-header">
+            <div key={index} className="group ui-card">
+              <div className="ui-card-header relative">
                 {competition.imageUrl && (
-                  <img 
+                  <Image 
                     src={competition.imageUrl} 
                     alt={competition.name} 
-                    className="w-full h-full object-contain bg-gray-800"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-contain bg-gray-800"
                   />
                 )}
                 <div className="ui-shine"><div className="ui-shine-bar group-hover:translate-x-[120%] duration-700" /></div>

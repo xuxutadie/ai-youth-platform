@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Image from 'next/image'
 import useAuth from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 
@@ -319,11 +320,16 @@ export default function FileUploadButton({ className }: FileUploadButtonProps) {
                     文件预览
                   </label>
                   {formData.type === 'image' ? (
-                    <img
-                      src={previewUrl}
-                      alt="图片预览"
-                      className="w-full h-48 object-contain bg-white rounded-md"
-                    />
+                    <div className="relative w-full h-48">
+                      <Image
+                        src={previewUrl}
+                        alt="图片预览"
+                        fill
+                        sizes="100vw"
+                        className="object-contain bg-white rounded-md"
+                        unoptimized
+                      />
+                    </div>
                   ) : formData.type === 'video' ? (
                     <video
                       src={previewUrl}

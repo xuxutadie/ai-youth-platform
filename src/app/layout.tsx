@@ -16,6 +16,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN" className="dark">
+      <head>
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://picsum.photos" />
+        <link rel="dns-prefetch" href="https://picsum.photos" />
+      </head>
       <body className={inter.className}>
         <ResizableLayout>
           {children}

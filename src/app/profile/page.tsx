@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Image from 'next/image'
 import HeroSection from '@/components/HeroSection'
 import useAuth from '@/hooks/useAuth'
 import AvatarCropper from '@/components/AvatarCropper'
@@ -223,7 +224,7 @@ export default function ProfilePage() {
             <input type="file" accept="image/*" onChange={onFileChange} />
             {file ? (
               <AvatarCropper file={file} onChange={setPreview} onExport={onExport} />
-            ) : (preview ? (<img src={preview} alt="头像预览" className="w-24 h-24 rounded-full object-cover" />) : (<div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-slate-700" />))}
+            ) : (preview ? (<Image src={preview} alt="头像预览" width={96} height={96} className="rounded-full object-cover" unoptimized />) : (<div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-slate-700" />))}
           </div>
           {error && <div className="text-red-600 dark:text-red-400 text-sm">{error}</div>}
           {message && <div className="text-green-600 dark:text-green-400 text-sm">{message}</div>}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Image from 'next/image'
 import VideoPoster from '@/components/VideoPoster'
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -102,9 +103,9 @@ export default function SearchPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {grouped[k].map((it) => (
                     <div key={it._id || it.id} className="ui-card">
-                      <div className="ui-card-header">
+                      <div className="ui-card-header relative">
                         {it.imageUrl ? (
-                          <img src={it.imageUrl} alt={it.title || it.name || ''} className="w-full h-40 object-cover" loading="lazy" />
+                          <Image src={it.imageUrl} alt={it.title || it.name || ''} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
                         ) : it.videoUrl ? (
                           <VideoPoster 
                             src={it.videoUrl}

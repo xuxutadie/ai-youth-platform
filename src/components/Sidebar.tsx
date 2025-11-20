@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import useAuth from '@/hooks/useAuth'
@@ -228,7 +229,7 @@ export default function Sidebar({ collapsed, onToggleCollapse }: { collapsed?: b
                 className="flex items-center gap-2 text-cyan-800 dark:text-cyan-300 hover:text-cyan-900 transition-colors focus:outline-none"
               >
                 {user?.avatarUrl ? (
-                  <img src={user.avatarUrl} alt="头像" className="w-10 h-10 rounded-full object-cover shadow-sm" />
+                  <Image src={user.avatarUrl} alt="头像" width={40} height={40} className="rounded-full object-cover shadow-sm" />
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center font-semibold shadow-sm">
                     {user?.username?.charAt(0).toUpperCase() || 'U'}

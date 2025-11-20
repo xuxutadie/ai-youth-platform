@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Image from 'next/image'
 import useAuth from '@/hooks/useAuth'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -148,7 +149,9 @@ export default function MyWorksPage() {
     const workUrl = work.imageUrl || work.videoUrl || work.htmlUrl || work.url || ''
     if (work.type === 'image') {
       return (
-        <img src={workUrl} alt={work.title || ''} className="w-full h-40 object-contain bg-white rounded" />
+        <div className="relative w-full h-40">
+          <Image src={workUrl} alt={work.title || ''} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-contain bg-white rounded" />
+        </div>
       )
     }
     if (work.type === 'video') {
