@@ -260,17 +260,7 @@ export async function PUT(request: NextRequest) {
         dbError.message.includes('MongooseServerSelectionError') ||
         dbError.name === 'MongooseServerSelectionError'
       )) {
-        // 创建模拟更新响应
-        const mockHonor = {
-          _id: id,
-          title,
-          studentName,
-          imageUrl,
-          date,
-          description,
-          updatedAt: new Date().toISOString()
-        }
-        
+        const mockHonor = { _id: id, ...updates, updatedAt: new Date().toISOString() }
         return NextResponse.json(
           { message: '荣誉更新成功（演示模式）', honor: mockHonor },
           { status: 200 }
