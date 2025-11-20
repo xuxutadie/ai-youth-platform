@@ -140,13 +140,13 @@ export default function Sidebar({ collapsed, onToggleCollapse }: { collapsed?: b
 
       {/* 桌面端侧边栏（固定定位，随页面滚动） */}
       <aside className={`hidden md:flex md:flex-col md:w-[172px] md:h-screen md:fixed md:left-0 md:top-0 md:z-30 md:overflow-y-auto md:overflow-x-hidden relative backdrop-blur-xl shadow-sm bg-[#0D001A] rounded-r-xl overflow-hidden ${collapsed ? 'md:hidden' : ''}`}>
-        <div className={`px-3 py-6 ${collapsed ? 'hidden' : ''}`}>
+        <div className={`px-3 py-2 mt-9 ${collapsed ? 'hidden' : ''}`}>
           <Link href="/" className="flex items-center justify-center">
             <div className="flex items-center justify-center min-w-0 w-full">
               <LogoImage
                 src={process.env.NEXT_PUBLIC_LOGO_URL || "/logo.svg"}
                 alt="青少年人工智能"
-                className="h-14 md:h-20 w-auto max-w-full shrink-0"
+                className="h-7 md:h-10 w-auto max-w-full shrink-0"
                 fallbackSrc="/logo.svg"
                 focus="none"
               />
@@ -159,7 +159,7 @@ export default function Sidebar({ collapsed, onToggleCollapse }: { collapsed?: b
           aria-label={collapsed ? '展开侧栏' : '收起侧栏'}
           title={collapsed ? '展开侧栏' : '收起侧栏'}
           onClick={() => onToggleCollapse?.()}
-          className="hidden md:inline-flex items-center gap-1 absolute right-1 top-[75%] -translate-y-1/2 z-50 px-2 py-1 rounded-md border border-cyan-200/60 dark:border-cyan-700/40 bg-white/70 dark:bg-slate-900/60 text-cyan-800 dark:text-cyan-200 backdrop-blur-sm hover:bg-white/90 dark:hover:bg-slate-900/80"
+          className="hidden md:inline-flex items-center gap-1 absolute right-1 top-[78%] -translate-y-1/2 z-20 px-2 py-1 rounded-md border border-cyan-200/60 dark:border-cyan-700/40 bg-white/70 dark:bg-slate-900/60 text-cyan-800 dark:text-cyan-200 backdrop-blur-sm hover:bg-white/90 dark:hover:bg-slate-900/80"
         >
           {collapsed ? (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
@@ -240,15 +240,15 @@ export default function Sidebar({ collapsed, onToggleCollapse }: { collapsed?: b
                 </svg>
               </button>
               {isProfileOpen && (
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-40 md:w-40 max-w-[160px] bg-cyan-50/95 dark:bg-[#40E0D0]/70 backdrop-blur-md rounded-md shadow-lg border border-cyan-100/60 dark:border-[#40E0D0]/50 py-2 z-10 max-h-[60vh] overflow-y-auto">
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-40 md:w-40 max-w-[160px] bg-cyan-50/95 dark:bg-[#40E0D0]/90 backdrop-blur-md rounded-md shadow-lg border border-cyan-100/60 dark:border-[#40E0D0]/60 py-2 z-50 max-h-[60vh] overflow-y-auto">
                   <div className="px-4 pb-2 border-b border-cyan-100/60 dark:border-[#40E0D0]/50">
-                    <p className="text-sm font-semibold text-cyan-800 dark:text-cyan-200">{user?.username}</p>
-                    <p className="text-xs text-cyan-800/90 dark:text-cyan-300">{user?.email}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">角色: {user?.role === 'student' ? '学生' : user?.role === 'teacher' ? '教师' : '管理员'}</p>
+                    <p className="text-sm font-semibold text-cyan-800 dark:text-white">{user?.username}</p>
+                    <p className="text-xs text-cyan-800/90 dark:text-white/90">{user?.email}</p>
+                    <p className="text-xs text-gray-500 dark:text-white/80 mt-1">角色: {user?.role === 'student' ? '学生' : user?.role === 'teacher' ? '教师' : '管理员'}</p>
                   </div>
-                  <Link href="/profile" className="block px-4 py-2 text-sm text-cyan-800 dark:text-cyan-200 hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setIsProfileOpen(false)}>个人信息</Link>
-                  <Link href="/my-works" className="block px-4 py-2 text-sm text-cyan-800 dark:text-cyan-200 hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setIsProfileOpen(false)}>个人作品</Link>
-                  <button onClick={() => { logout(); setIsProfileOpen(false) }} className="block w-full text-left px-4 py-2 text-sm text-cyan-800 dark:text-cyan-200 hover:bg-gray-100 dark:hover:bg-gray-800">退出登录</button>
+                  <Link href="/profile" className="block px-4 py-2 text-sm text-cyan-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setIsProfileOpen(false)}>个人信息</Link>
+                  <Link href="/my-works" className="block px-4 py-2 text-sm text-cyan-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setIsProfileOpen(false)}>个人作品</Link>
+                  <button onClick={() => { logout(); setIsProfileOpen(false) }} className="block w-full text-left px-4 py-2 text-sm text-cyan-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800">退出登录</button>
                 </div>
               )}
             </div>
