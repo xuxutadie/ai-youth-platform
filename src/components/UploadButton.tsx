@@ -40,6 +40,7 @@ export default function UploadButton({ type, className }: UploadButtonProps) {
         { name: 'title', label: '作品标题', placeholder: '请输入作品标题' },
         { name: 'authorName', label: '作者名字', placeholder: '请输入作者名字' },
         { name: 'className', label: '班级', placeholder: '请输入班级' },
+        { name: 'grade', label: '年级', placeholder: '请输入年级' },
         { name: 'type', label: '作品类型', placeholder: '请选择作品类型（图片/视频/网页）' }
       ],
       requiredRoles: ['student', 'teacher', 'admin']
