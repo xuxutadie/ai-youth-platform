@@ -46,7 +46,7 @@ async function seedData() {
     // 从.env.local文件加载环境变量
     const fs = require('fs');
     const path = require('path');
-    const envPath = path.join(__dirname, '../.env.local');
+    const envPath = path.join(__dirname, '../../../.env.local');
     
     if (fs.existsSync(envPath)) {
       const envContent = fs.readFileSync(envPath, 'utf8');

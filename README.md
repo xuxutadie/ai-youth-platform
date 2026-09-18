@@ -1,253 +1,101 @@
-# AI少儿编程展示平台
+# AI Youth Platform · 青少年 AI 教育展示平台
 
-这是一个基于Next.js和MongoDB的AI少儿编程展示平台，用于展示学生的编程作品、赛事荣誉和课程内容。
+[English](README_EN.md) · [部署说明](docs/deployment.md) · [贡献指南](CONTRIBUTING.md) · [路线图](ROADMAP.md)
 
-## 功能特点
+一个面向青少年 AI 教育场景的作品、赛事、荣誉与课程展示平台。帮助教师组织教学成果、学生展示作品，并为机构提供内容管理入口。
 
-- 🏆 **赛事展示** - 展示学生参加的各类编程赛事
-- 💻 **作品展示** - 展示学生的编程作品（图片、视频、HTML等）
-- 🏅 **荣誉展示** - 展示学生获得的荣誉证书
-- 📚 **课程内容** - 提供编程课程视频资源
-- 👥 **用户管理** - 支持学生、教师和管理员角色
-- 🔐 **身份验证** - 基于JWT的安全认证系统
-- 📱 **响应式设计** - 适配各种设备屏幕
+> 当前处于开源整理阶段，尚未发布 v1.0.0。已发现的依赖和应用安全问题仍需处理，暂不建议直接用于公开生产环境或存放真实学生敏感资料。见[发布检查清单](docs/releases/v1.0.0-checklist.md)。
 
-## 技术栈
+## 已有功能
 
-- **前端框架**: Next.js 14 (App Router)
-- **样式**: Tailwind CSS
-- **数据库**: MongoDB
-- **认证**: JWT
-- **语言**: TypeScript
-- **图片存储**: Cloudinary
-- **开发工具**: ESLint, Prettier
+| 模块 | 代码中已有的能力 |
+| --- | --- |
+| 学生作品 | 图片、视频、HTML 作品上传与详情展示、我的作品 |
+| 赛事与荣誉 | 赛事列表、详情、荣誉展示及后台管理 |
+| 课程 | 课程列表、课程详情与内容上传 |
+| 账户 | 注册、登录、个人资料、修改密码与邮件找回密码 |
+| 角色 | student、teacher、admin；具体操作权限由服务端接口判断 |
+| 管理后台 | 内容管理、用户角色管理、站点与存储配置入口 |
+| 检索 | 跨内容搜索与首页展示 |
 
-## 项目结构
+这里的 AI 指教学应用场景，当前仓库未实现大模型对话、自动评课或 AI 生成服务。后台出现的页面不代表所有运维能力均已完成；功能验收以真实接口和测试为准。
 
-```
-ai-youth-platform/
-├── src/
-│   ├── app/                  # Next.js App Router页面
-│   │   ├── api/              # API路由
-│   │   │   ├── auth/         # 认证相关API
-│   │   │   ├── competitions/ # 赛事API
-│   │   │   ├── works/        # 作品API
-│   │   │   ├── honors/       # 荣誉API
-│   │   │   ├── courses/      # 课程API
-│   │   │   └── admin/        # 管理员API
-│   │   ├── competitions/     # 赛事页面
-│   │   ├── works/            # 作品页面
-│   │   ├── honors/           # 荣誉页面
-│   │   ├── courses/          # 课程页面
-│   │   ├── login/            # 登录页面
-│   │   ├── register/         # 注册页面
-│   │   ├── admin/            # 管理员页面
-│   │   ├── layout.tsx        # 根布局
-│   │   └── page.tsx          # 首页
-│   ├── components/           # React组件
-│   │   ├── Navbar.tsx        # 导航栏
-│   │   ├── HeroSection.tsx   # 首页横幅
-│   │   ├── ContentSection.tsx # 内容展示区
-│   │   ├── CompetitionsList.tsx # 赛事列表
-│   │   ├── WorksList.tsx     # 作品列表
-│   │   ├── HonorsList.tsx    # 荣誉列表
-│   │   ├── CoursesList.tsx   # 课程列表
-│   │   ├── UploadButton.tsx  # 上传按钮
-│   │   └── AdminDashboard.tsx # 管理面板
-│   ├── lib/                  # 工具库
-│   │   ├── mongodb.ts        # MongoDB连接
-│   │   └── auth.ts           # 认证中间件
-│   ├── models/               # 数据模型
-│   │   ├── User.ts           # 用户模型
-│   │   ├── Competition.ts    # 赛事模型
-│   │   ├── Work.ts           # 作品模型
-│   │   ├── Honor.ts          # 荣誉模型
-│   │   └── Course.ts         # 课程模型
-│   └── styles/               # 样式文件
-│       └── globals.css       # 全局样式
-├── public/                   # 静态资源
-├── package.json              # 项目依赖
-├── tailwind.config.js        # Tailwind配置
-├── tsconfig.json             # TypeScript配置
-├── .eslintrc.js              # ESLint配置
-├── .prettierrc               # Prettier配置
-└── next.config.js            # Next.js配置
+## 技术结构
+
+- Next.js 14 App Router、React 18、TypeScript、Tailwind CSS。
+- MongoDB / Mongoose 保存账户及业务记录；部分上传元数据和配置保存在本地 JSON 文件。
+- JWT Bearer 认证、bcrypt 密码散列、Nodemailer 密码重置邮件。
+- 上传主要保存至本地磁盘。Cloudinary 域名配置和历史环境变量不等于已实现云上传服务。
+
+```mermaid
+flowchart LR
+  A[浏览器 / 学生与教师] --> B[Next.js 页面与 API]
+  B --> C[MongoDB]
+  B --> D[本地上传文件与 JSON 配置]
+  B --> E[SMTP 密码重置邮件]
 ```
 
-## 安装与运行
+## 本地启动
 
-### 环境要求
+准备 Node.js、npm 与独立测试 MongoDB。当前锁定依赖要求的 Next.js 最低 Node 版本是 18.17；这只是兼容性下限，不是生产版本建议。本轮检查环境为 Node.js 24.11.1 / npm 11.6.2。
 
-- Node.js 18.0 或更高版本
-- MongoDB 4.4 或更高版本
-- npm 或 yarn
-
-### 安装步骤
-
-1. 克隆项目
 ```bash
-git clone <repository-url>
+git clone https://github.com/xuxutadie/ai-youth-platform.git
 cd ai-youth-platform
+npm ci
 ```
 
-2. 安装依赖
+在根目录创建自己的 `.env.local`，配置以下键；将两个占位密钥换成分别生成的随机值，至少 32 字符。
+
+```dotenv
+MONGODB_URI=mongodb://127.0.0.1:27017/ai-youth-platform-dev
+JWT_SECRET=REPLACE_WITH_A_RANDOM_SECRET_AT_LEAST_32_CHARACTERS
+JWT_RESET_SECRET=REPLACE_WITH_ANOTHER_RANDOM_SECRET_AT_LEAST_32_CHARACTERS
+USE_MOCK_DB=false
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+生成一个随机密钥：
+
 ```bash
-npm install
-```
-
-3. 设置环境变量
-创建 `.env.local` 文件并添加以下变量：
-```
-# MongoDB
-MONGODB_URI=mongodb://localhost:27017/ai-youth-platform
-
-# JWT Authentication
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-
-# Cloudinary (for file storage)
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
-```
-
-4. 安装MongoDB
-
-#### 方法一：使用Chocolatey安装（推荐）
-```bash
-# 以管理员身份运行命令提示符，然后执行：
-choco install mongodb -y
-```
-
-#### 方法二：从官网下载安装
-访问 [MongoDB下载中心](https://www.mongodb.com/download-center/community) 下载Windows版本并安装。
-
-#### 方法三：使用Docker运行
-```bash
-docker run -d -p 27017:27017 --name mongodb mongo:latest
-```
-
-5. 启动MongoDB服务
-
-Windows服务安装完成后，MongoDB应该会自动启动。如果没有，请手动启动：
-```bash
-net start MongoDB
-```
-
-6. 启动开发服务器
-```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
 npm run dev
 ```
 
-7. 打开浏览器访问 [http://localhost:3000](http://localhost:3000)
+打开 [localhost:3000](http://localhost:3000)。新注册账户始终是学生；首位管理员需要维护者在隔离数据库中为自己核验过的账户设置角色，旧的注册管理员脚本不能作为正式初始化方式。邮件配置及存储限制见[部署说明](docs/deployment.md)。
 
-## 部署指南
+仅在隔离的本地演示中，显式设置 `USE_MOCK_DB=true` 并以开发模式启动，才会启用模拟账户。模拟登录不验证真实密码；不得将这个开发服务暴露到公网。
 
-### Vercel部署（推荐）
+## 验证
 
-1. 将代码推送到GitHub仓库
-2. 在Vercel中导入项目
-3. 在Vercel控制台中配置环境变量
-4. 部署项目
-
-### 自定义服务器部署
-
-1. 构建项目
 ```bash
+npm run type-check
+npm run lint
+node --test tests/security/auth.test.cjs
 npm run build
+npm audit --registry=https://registry.npmjs.org
 ```
 
-2. 启动生产服务器
-```bash
-npm start
+安全回归测试使用隔离的数据库和邮件替身，不接触线上数据。旧调试脚本归档在 `tests/manual/`，它们可能写入或删除数据，不作为自动化通过证据。
+
+## 目录
+
+```text
+src/                       页面、接口、组件与数据模型
+public/                    站点静态资源（不含归档的调试 HTML）
+tests/security/            可自动运行的认证回归测试
+tests/manual/              历史人工调试脚本和浏览器测试页
+docs/development-history/  历史开发报告，不代表当前验收结论
+docs/releases/             首次发布草稿与检查清单
+.github/                   Issue 和 Pull Request 模板
 ```
 
-3. 使用PM2管理进程（推荐）
-```bash
-npm install -g pm2
-pm2 start npm --name "ai-youth-platform" -- start
-```
+## 应用与参与
 
-### Docker部署
+适合用于课程成果展示、比赛作品归档及教学项目二次开发。上述是适用场景，不代表已核实的学校部署、用户规模或商业案例。本仓库未提供经过核验的在线演示地址和真实教学截图，不放置占位演示链接或虚构数据。
 
-1. 创建Dockerfile（如果不存在）
-2. 构建Docker镜像
-```bash
-docker build -t ai-youth-platform .
-```
-
-3. 运行容器
-```bash
-docker run -p 3000:3000 --env-file .env.local ai-youth-platform
-```
-
-## 故障排除
-
-### 常见问题
-
-1. **MongoDB连接错误**
-   - 确保MongoDB服务正在运行
-   - 检查`.env.local`文件中的`MONGODB_URI`是否正确
-   - 确认网络连接和防火墙设置
-
-2. **依赖安装失败**
-   - 尝试删除`node_modules`和`package-lock.json`
-   - 重新运行`npm install`
-   - 检查Node.js版本是否符合要求
-
-3. **开发服务器启动失败**
-   - 检查端口3000是否被占用
-   - 查看终端输出的错误信息
-   - 确认所有环境变量已正确设置
-
-4. **API请求失败**
-   - 检查API路由是否正确
-   - 确认数据库连接正常
-   - 查看浏览器控制台和服务器日志
-
-### 调试技巧
-
-1. 使用浏览器开发者工具检查网络请求
-2. 查看终端输出中的错误信息
-3. 使用`console.log`在代码中添加调试信息
-4. 检查MongoDB数据库中的数据
-
-## 用户角色
-
-- **学生**: 可以浏览所有内容，上传自己的作品
-- **教师**: 可以管理课程，审核学生作品
-- **管理员**: 拥有所有权限，可以管理用户和内容
-
-## API文档
-
-### 认证相关
-
-- `POST /api/auth/register` - 用户注册
-- `POST /api/auth/login` - 用户登录
-
-### 内容管理
-
-- `GET /api/competitions` - 获取所有赛事
-- `POST /api/competitions` - 上传新赛事
-
-- `GET /api/works` - 获取所有作品
-- `POST /api/works` - 上传新作品
-
-- `GET /api/honors` - 获取所有荣誉
-- `POST /api/honors` - 上传新荣誉
-
-- `GET /api/courses` - 获取所有课程
-- `POST /api/courses` - 上传新课程
-
-### 用户管理
-
-- `GET /api/admin/users` - 获取所有用户
-- `PUT /api/admin/users` - 更新用户角色
-- `DELETE /api/admin/users` - 删除用户
-
-## 贡献
-
-欢迎提交Issue和Pull Request来改进这个项目。
-
-## 许可证
-
-MIT License
+- 问题与建议：[GitHub Issues](https://github.com/xuxutadie/ai-youth-platform/issues)。
+- 贡献方式：[CONTRIBUTING.md](CONTRIBUTING.md)。
+- 安全报告：[SECURITY.md](SECURITY.md)，请勿公开提交令牌或学生资料。
+- 维护者：[xuxutadie](https://github.com/xuxutadie)。
+- 许可证：[MIT](LICENSE)。第三方库和素材保留各自权利，参见 [第三方素材说明](docs/third-party-assets.md)。

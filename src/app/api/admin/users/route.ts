@@ -1,5 +1,5 @@
+import { isMockAuthEnabled } from '@/lib/auth-config'
 import { NextRequest, NextResponse } from 'next/server'
-import jwt from 'jsonwebtoken'
 import User from '@/models/User'
 import connectDB from '@/lib/mongodb'
 import { authMiddleware } from '@/lib/auth'
@@ -9,40 +9,10 @@ import { existsSync } from 'fs'
 
 export async function GET(request: NextRequest) {
   try {
-    // 从请求头获取令牌
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: '未提供授权令牌' },
-        { status: 401 }
-      )
-    }
+    // 统一校验数据库中的当前角色，避免已降权账户继续使用旧角色。
+    const auth = await authMiddleware(request, ['admin'])
+    if (auth instanceof NextResponse) return auth
 
-    const token = authHeader.substring(7) // 移除 'Bearer ' 前缀
-
-    // 验证令牌
-    let decoded;
-    try {
-      decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET || 'fallback-secret-key'
-      ) as { userId: string; role: string }
-    } catch (tokenError) {
-      console.error('Token验证失败:', tokenError)
-      return NextResponse.json(
-        { error: '无效的授权令牌' },
-        { status: 401 }
-      )
-    }
-
-    // 检查角色权限
-    if (decoded.role !== 'admin') {
-      return NextResponse.json(
-        { error: '权限不足' },
-        { status: 403 }
-      )
-    }
-    
     const { searchParams } = new URL(request.url)
     const q = (searchParams.get('q') || '').trim().toLowerCase()
     const roleParam = (searchParams.get('role') || '').trim()
@@ -50,7 +20,7 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
     const pageSize = Math.min(1000, Math.max(1, parseInt(searchParams.get('pageSize') || '10', 10)))
 
-    const useMock = process.env.USE_MOCK_DB !== 'false'
+    const useMock = isMockAuthEnabled()
     if (useMock) {
       try {
         const metaFile = join(process.cwd(), 'public', 'data', 'users-meta.json')

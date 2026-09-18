@@ -58,7 +58,7 @@ function simpleFetch(url, options) {
 }
 
 // 使用从test-delete-with-token.js获取的有效token
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJtb2NrLXVzZXItMTIzIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzYyNjk2MTQwLCJleHAiOjE3NjMzMDA5NDB9.452yy8_dj33N2XF92rc4dpO7T3vvUs62DX9SBDL8bQY';
+const token = 'REPLACE_WITH_LOCAL_TEST_TOKEN';
 
 async function testWorksDeleteAPI() {
   console.log('开始测试作品删除API...');

@@ -4,7 +4,7 @@ const http = require('http');
 const { URL } = require('url');
 
 // 测试用的管理员token（请替换为实际有效的token）
-const adminToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NjA3ZjQ5M2E5ZjY1MzAwMTQzZjE3YmUiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MTIwMzU3NzN9.5YhSfKqM1QJ7h6vY9T8X0nG3pLqR9tE2wF7zK6cB3s';
+const adminToken = 'REPLACE_WITH_LOCAL_TEST_TOKEN';
 
 // 创建一个简单的fetch函数
 function simpleFetch(url, options) {

@@ -1,8 +1,9 @@
+import { isMockAuthEnabled } from '@/lib/auth-config'
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { authMiddleware } from '@/lib/auth'
 
-const useMockDatabase = process.env.NODE_ENV === 'production' ? false : (process.env.USE_MOCK_DB !== 'false')
+const useMockDatabase = isMockAuthEnabled()
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
     } catch (dbError) {
       console.error('数据库操作错误:', dbError)
       return NextResponse.json(
-        { error: '数据库连接失败，已切换到模拟模式' },
+        { error: '数据库连接失败，请稍后再试' },
         { status: 503 }
       )
     }
