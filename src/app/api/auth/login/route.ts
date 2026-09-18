@@ -1,16 +1,18 @@
+import { isMockAuthEnabled, requireAuthSecret } from '@/lib/auth-config'
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { rateLimit } from '@/lib/http'
 
 // 为开发环境添加模拟数据库功能
-const useMockDatabase = process.env.USE_MOCK_DB !== 'false'
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '30761985@qq.com'
+const useMockDatabase = isMockAuthEnabled()
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@example.com'
 
 export async function POST(request: NextRequest) {
   const limited = rateLimit(request, 'auth_login', 20, 60_000)
   if (limited) return limited
   try {
+    requireAuthSecret()
     const { email, password } = await request.json()
     
     // 验证输入
@@ -56,7 +58,7 @@ export async function POST(request: NextRequest) {
       // 生成JWT令牌
       const token = jwt.sign(
         { userId: mockUser._id, role: mockUser.role },
-        process.env.JWT_SECRET || 'fallback-secret-key',
+        requireAuthSecret(),
         { expiresIn: '7d' }
       )
       
@@ -99,7 +101,7 @@ export async function POST(request: NextRequest) {
         // 生成JWT令牌
         const token = jwt.sign(
           { userId: user._id, role: user.role },
-          process.env.JWT_SECRET || 'fallback-secret-key',
+          requireAuthSecret(),
           { expiresIn: '7d' }
         )
         

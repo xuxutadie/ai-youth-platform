@@ -2,7 +2,7 @@
 const fetch = require('node-fetch');
 
 // 模拟管理员token（需要替换为实际的token）
-const adminToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NjA2NzZmZjQ0ZmFkNzAwMjE3ZjI4YjMiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MTIwNzU1NjJ9.S7s_y1rGj2hU2r9t2x2x2x2x2x2x2x2x2x2x2x2x2x2';
+const adminToken = 'REPLACE_WITH_LOCAL_TEST_TOKEN';
 
 async function testDelete() {
   try {

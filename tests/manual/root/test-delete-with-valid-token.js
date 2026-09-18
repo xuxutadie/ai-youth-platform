@@ -2,7 +2,7 @@
 const fetch = require('node-fetch');
 
 // 测试用的token（需要替换为实际有效的token）
-const testToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzQ3ZmY3YjM5MjM3ZjAwMTc1ZjQ4YjEiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3MzI3NjQ5NzJ9.k3HJk3hJ3hJ3hJ3hJ3hJ3hJ3hJ3hJ3hJ3hJ3hJ3hJ3hJ3';
+const testToken = 'REPLACE_WITH_LOCAL_TEST_TOKEN';
 
 async function testDeleteAPIs() {
   console.log('开始测试删除API...');

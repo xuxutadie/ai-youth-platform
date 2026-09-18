@@ -1,8 +1,9 @@
+import { isMockAuthEnabled, requireAuthSecret } from '@/lib/auth-config'
 import { NextRequest, NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 
-const useMockDatabase = process.env.NODE_ENV === 'production' ? false : (process.env.USE_MOCK_DB !== 'false')
+const useMockDatabase = isMockAuthEnabled()
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     if (useMockDatabase) {
       try {
-        jwt.verify(token, process.env.JWT_RESET_SECRET || 'fallback-reset-secret')
+        jwt.verify(token, requireAuthSecret('JWT_RESET_SECRET'))
         return NextResponse.json({ message: '密码已重置（模拟模式）' }, { status: 200 })
       } catch (e) {
         return NextResponse.json({ error: '重置令牌无效或已过期' }, { status: 400 })
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
       } catch (dbError) {
         console.error('数据库操作错误:', dbError)
         return NextResponse.json(
-          { error: '数据库连接失败，已切换到模拟模式' },
+          { error: '数据库连接失败，请稍后再试' },
           { status: 503 }
         )
       }

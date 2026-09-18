@@ -1,0 +1,31 @@
+name: 缺陷报告 / Bug report
+description: 报告可复现的非安全问题 / Report a reproducible non-security bug
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "安全漏洞请按 SECURITY.md 私密报告。请勿粘贴 Token、.env 或学生个人资料。"
+  - type: textarea
+    id: problem
+    attributes:
+      label: 问题与预期 / Problem and expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤 / Reproduction steps
+      description: 使用脱敏或合成数据，说明页面、角色与操作顺序。
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境 / Environment
+      description: 提交或版本、Node.js、浏览器、系统、本地或部署环境。
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 脱敏日志或截图 / Redacted evidence

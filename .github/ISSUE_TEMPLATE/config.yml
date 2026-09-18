@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 安全报告说明 / Security reporting
+    url: https://github.com/xuxutadie/ai-youth-platform/blob/main/SECURITY.md
+    about: 先阅读安全政策，不在公开 Issue 披露敏感细节。

@@ -1,3 +1,4 @@
+import { isMockAuthEnabled, requireAuthSecret } from '@/lib/auth-config'
 import jwt from 'jsonwebtoken'
 import { NextRequest, NextResponse } from 'next/server'
 import User from '@/models/User'
@@ -31,8 +32,16 @@ export async function authMiddleware(
     // 验证令牌
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || 'fallback-secret-key'
+      requireAuthSecret()
     ) as { userId: string; role: string }
+
+    // 显式开发模式单独处理模拟身份；数据库故障不能触发模拟认证。
+    if (isMockAuthEnabled()) {
+      if (allowedRoles && !allowedRoles.includes(decoded.role)) {
+        return NextResponse.json({ error: '权限不足' }, { status: 403 })
+      }
+      return { success: true, userId: decoded.userId, role: decoded.role }
+    }
 
     // 连接数据库
     try {
@@ -62,23 +71,9 @@ export async function authMiddleware(
         role: user.role
       }
     } catch (dbError) {
-      // 数据库连接失败时，使用JWT中的信息
-      console.error('数据库连接失败，使用JWT信息:', dbError)
-      
-      // 检查角色权限（如果提供了允许的角色列表）
-      if (allowedRoles && !allowedRoles.includes(decoded.role)) {
-        return NextResponse.json(
-          { error: '权限不足' },
-          { status: 403 }
-        )
-      }
-      
-      // 返回JWT中的信息
-      return {
-        success: true,
-        userId: decoded.userId,
-        role: decoded.role
-      }
+      // 无法确认账户状态时拒绝访问。
+      console.error('认证数据库不可用')
+      return NextResponse.json({ error: '认证服务暂不可用' }, { status: 503 })
     }
   } catch (error) {
     console.error('身份验证错误:', error)

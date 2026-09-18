@@ -11,3 +11,12 @@ coverage/
 
 public/uploads/
 public/data/
+# 本地凭据与运行产物
+.env.*
+!.env.example
+!.env.local.example
+*.pem
+*.key
+*.tsbuildinfo
+test-token.txt
+test-user.json
